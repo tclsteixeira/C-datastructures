@@ -19,6 +19,184 @@
 #include "binarytree.h"
 #include "binarysearchtree.h"
 #include "avltree.h"
+#include "redblacktree.h"
+
+
+/*
+ * Red-black tree demo.
+ * */
+void rbtree_demo() {
+
+	/*
+	 * Calculates size of data in bytes
+	 * Note: You can't do sizeof(*data) because returns always 1.
+	 * */
+	size_t calcdatasize(const void* data) {
+		return sizeof(*((int *)data));
+	}
+
+	/*
+	 * Function to compare key with given data.
+	 * Returns 1 if data > key, -1 if data < key, 0 if is equal.
+	 * */
+	int compare(const void* data, const void* key) {
+
+		if ((data == NULL) && (key == NULL))
+			return 0;
+		else if (data == NULL)
+			return -1;
+		else if (key == NULL)
+			return 1;
+		else {
+			//struct binarytreenode* datanode = (struct binarytreenode*)data;
+			int idata = *((int*)(data));
+			int ikey = *((int*)key);
+
+			if (idata == ikey)
+				return 0;
+			else if (idata > ikey)
+				return 1;
+			else
+				return -1;
+		}
+	}
+
+	/*
+	 * Prints node data
+	 * */
+	void printnode(struct rbtreenode* node) {
+		if (node) {
+			void* data = node->data;
+			if (data) {
+				printf("%d", *((int*)data));
+				if (node->c == RB_RED)
+					printf("%s", "-R");
+				else
+					printf("%s", "-B");
+			}
+		}
+	}
+
+	/*
+	 * (hard) copy data from source to dest
+	 * */
+	void copydata(void* dest, const void* from) {
+		if (dest) {
+			if (from) {
+				*((int*)dest) = *((int*)from);
+			}
+		}
+	}
+
+	printf("___________\n");
+	printf("RED-BLACK TREE\n");
+	printf("\nRED-BLACK TREE demo -----------\n\n");
+
+	int intdata[] = {7,3,18,10,22,8,11,26,2,6,13};
+	int n = sizeof(intdata) / sizeof(intdata[0]);
+
+	// create empty tree (no root)
+	struct rbtree* tree = rbtree_create(NULL, calcdatasize, compare, NULL, printnode, copydata);
+
+	printf("Red-black tree created successfully (empty)");
+	printf("Tree size: %d\n\n", rbtree_getSizeIt(tree));
+	printf("Build red-black tree with elements in the following order:\n");
+
+	for (int i = 0; i < n; ++i) {
+		printf("%d ", intdata[i]);
+	}
+
+	printf("\n\n");
+
+	for (int i = 0; i < n; ++i) {
+		tree->root = rbtree_insert(tree, &intdata[i]);
+	}
+
+	printf("Print tree:\n\n");
+	rbtree_print(tree, "  ");
+	printf("\n");
+	/*
+	 *  Level order: 10 7 18 3 8 11 22 2 6 13 26
+	 *
+	 *           	   10
+	 *	       7              18
+	 * 	   3      8       11      22
+	 *   2   6 	            13      26
+	 *
+	 * */
+
+	printf("Tree size (iterative alg): %d\n", rbtree_getSizeIt(tree));
+
+	// search '1'
+	int* intp = &intdata[10];
+	printf("Search value '%d': ", *intp);
+	struct rbtreenode* n0 = rbtree_search(tree, tree->root, intp);
+	if (n0 != NULL)
+		printf("Found value '%d'.\n", *((int*)(n0->data)));
+	else
+		printf("Not found :(?\n");
+
+	// printf("Tree deep using rec alg (max number of edges from root to deepest leaf node): %d\n", bst_findNode(tree->root));
+	printf("Height of tree (max number of edges from deepest leaf node to root node): ");
+	printf("%d\n\n", rbtree_treeHeightLevelOrder(tree));
+
+	// root has depth 0
+	printf("Node '%d' depth: %d\n", *((int*)(tree->root->data)),
+			rbtree_findNodeDepth(tree, tree->root, tree->root->data));
+	// '5' node has depth 1
+	printf("Node '%d' depth: %d\n", intdata[4], rbtree_findNodeDepth(tree, tree->root, (void*)(&intdata[4])));
+	// '6' node has depth 2
+	printf("Node '%d' depth: %d\n", intdata[5], rbtree_findNodeDepth(tree, tree->root, (void*)(&intdata[5])));
+	// root has height 2
+	printf("Node '%d' height: %d\n", *((int*)(tree->root->data)),
+			rbtree_findNodeHeight(tree, tree->root->data));
+	// '5' node has height 1
+	printf("Node '%d' height: %d\n", intdata[4],
+			rbtree_findNodeHeight(tree, (void*)(&intdata[4])));
+	// '6' node has height 0
+	printf("Node '%d' height: %d\n\n", intdata[5],
+			rbtree_findNodeHeight(tree, (void*)(&intdata[5])));
+
+
+	// delete nodes test
+	int dellist[] = {18, 11, 3, 10, 22};
+	printf("Delete values: ");
+	for (int i = 0; i < 5; ++i) {
+		printf("%d ", dellist[i]);
+	}
+
+	printf("\n\n");
+	int* success = malloc(sizeof(int));
+
+	// delete nodes with values in delete list
+	for (int i = 0; i < 5; ++i) {
+		*success = 1;
+		tree->root = rbtree_delete(tree, (void*)(&dellist[i]), success);
+
+		if (!(*success))
+			printf("Failed to delete '%d' from tree.\n\n", dellist[i]);
+		else
+		{
+			printf("'%d' deleted successfully from tree.\n", dellist[i]);
+			printf("Print tree:\n\n");
+			rbtree_print(tree, "  ");
+//			printf("\n");
+		}
+
+		printf("-----------------\n");
+	}
+
+	free(success);
+	printf("\n");
+
+	// Bug in Morris alg (wrong results in unbalanced trees)
+    //	printf("Morris alg, height= %d\n\n", binarytree_findHeightMorrisTrav(tree->root));// findHeightMorrisTrav(tree->root));
+
+	printf("Tree size (iterative alg): %d\n", rbtree_getSizeIt(tree));
+
+	rbtree_destroy(tree);
+	printf("Red-black tree destroyed successfully.\n\n");
+}
 
 /*
  * AVL tree demo.
@@ -1243,5 +1421,7 @@ int main() {
 	bst_demo();
 	printf("\n\n");
 	avltree_demo();
+	printf("\n\n");
+	rbtree_demo();
 	return EXIT_SUCCESS;
 }

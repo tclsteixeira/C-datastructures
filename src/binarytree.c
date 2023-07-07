@@ -834,7 +834,6 @@ int binarytree_findNodeDepth(struct binarytree* tree, struct binarytreenode* roo
  */
 int binarytree_findNodeHeight(struct binarytree* tree, struct binarytreenode* root, void* key)
 {
-
 	/*
 	 * Helper function to find the height
 	 * of a given node in the binary tree.

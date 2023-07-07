@@ -16,7 +16,8 @@ C_SRCS += \
 ../src/linkedlist.c \
 ../src/linkedlistqueue.c \
 ../src/linkedliststack.c \
-../src/main.c 
+../src/main.c \
+../src/redblacktree.c 
 
 C_DEPS += \
 ./src/arraylist.d \
@@ -31,7 +32,8 @@ C_DEPS += \
 ./src/linkedlist.d \
 ./src/linkedlistqueue.d \
 ./src/linkedliststack.d \
-./src/main.d 
+./src/main.d \
+./src/redblacktree.d 
 
 OBJS += \
 ./src/arraylist.o \
@@ -46,7 +48,8 @@ OBJS += \
 ./src/linkedlist.o \
 ./src/linkedlistqueue.o \
 ./src/linkedliststack.o \
-./src/main.o 
+./src/main.o \
+./src/redblacktree.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -61,7 +64,7 @@ src/%.o: ../src/%.c src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/hashtable.d ./src/hashtable.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o
+	-$(RM) ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/hashtable.d ./src/hashtable.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o ./src/redblacktree.d ./src/redblacktree.o
 
 .PHONY: clean-src
 
