@@ -6,7 +6,7 @@
  */
 
 #include <stdio.h>
-
+#include <limits.h>
 #include "arraylist.h"
 #include "binarysearch.h"
 #include "circdbllinkedlist.h"
@@ -20,7 +20,401 @@
 #include "binarysearchtree.h"
 #include "avltree.h"
 #include "redblacktree.h"
+#include "heapstruct.h"
+#include "minbinaryheap.h"
+#include "maxbinaryheap.h"
+#include "fibonacciheap.h"
 
+
+/*
+ * Fibonacci heap demo.
+ * */
+void fibonacciheap_demo() {
+
+	/*
+	 * Function to compare key with given data.
+	 * Returns 1 if key1 > key2, -1 if key1 < key2, 0 if is equal.
+	 * */
+	int compare(const void* key1, const void* key2) {
+
+		if ((key1 == NULL) && (key2 == NULL))
+			return 0;
+		else if (key1 == NULL)
+			return -1;
+		else if (key2 == NULL)
+			return 1;
+		else {
+			int ikey1 = *((int*)(key1));
+			int ikey2 = *((int*)(key2));
+
+			if (ikey1 == ikey2)
+				return 0;
+			else if (ikey1 > ikey2)
+				return 1;
+			else
+				return -1;
+		}
+	}
+
+	/*
+	 * Prints node data
+	 * */
+	void printdata(void* data)
+	{
+		if (data) {
+			printf("%d", *((int*)data));
+		}
+	}
+
+	printf("___________\n");
+	printf("FIBONACCI HEAP\n");
+	printf("\nFIBONACCI HEAP demo -----------\n\n");
+
+	int minval = INT_MIN;
+	int intdata[] = {5, 2, 8};
+	int eight = intdata[2];
+	int n = 3;	//sizeof(intdata) / sizeof(intdata[0]);
+	printf("Creating an initial empty heap\n");
+	struct fibheap* fh = fibheap_create((void*)(&minval), compare, printdata, NULL);
+
+	printf("Load heap with elements in the following order:\n");
+	for (int i = 0; i < n; ++i) {
+		printf("%d ", intdata[i]);
+		fibheap_insert(fh, &intdata[i]);
+	}
+
+	printf("\n\n");
+	fibheap_print(fh);
+	/*
+	 * Root nodes: 2-->5-->8
+	 *
+	 * */
+
+	// Now we will extract the minimum value node from the heap
+	printf("Extracting min\n");
+	struct fibheapnode* mini1 = fibheap_extract_min(fh);
+	printf("Min = %d\n\n", *((int*)(mini1->key)));
+
+	fibheap_print(fh);
+	/*
+	 * Root nodes: 5
+	 **/
+
+	// Now we will decrease the value of node '8' to '7'
+	int seven = 7;
+	printf("Decrease value of 8 to 7\n");
+	fibheap_find_and_decrease(fh, fh->mini, &eight, &seven);
+	fibheap_print(fh);
+	/*
+	 * Root nodes: 5
+	 **/
+
+	// Now we will delete the node '7'
+	printf("Delete the node 7\n");
+	struct fibheapnode* delnode = fibheap_delete(fh, &seven);
+	printf("Node '%d' deleted from heap.\n", *((int*)(delnode->key)));
+
+	fibheap_print(fh);
+	/*
+	 * Root nodes: 5
+	 **/
+
+	struct fibheap* fh1 = fibheap_create(&minval, compare, printdata, NULL);
+	struct fibheap* fh2 = fibheap_create(&minval, compare, printdata, NULL);
+	int intdata1[] = {3, 11}; int n1 = 2;
+	int intdata2[] = {7, 19}; int n2 = 2;
+
+	printf("Load heap 1 with elements in the following order:\n");
+	for (int i = 0; i < n1; ++i) {
+		printf("%d ", intdata1[i]);
+		fibheap_insert(fh1, &intdata1[i]);
+	}
+
+	printf("\n\n");
+	fibheap_print(fh1);
+	/*
+	 * Root nodes: 3-->11
+	 * */
+
+	printf("Load heap 2 with elements in the following order:\n");
+	for (int i = 0; i < n2; ++i) {
+		printf("%d ", intdata2[i]);
+		fibheap_insert(fh2, &intdata2[i]);
+	}
+
+	printf("\n\n");
+	fibheap_print(fh2);
+	/*
+	 * Root nodes: 7-->19
+	 * */
+
+	printf("Union of heap 1 with heap 2 (heap 1 is the result union)\n");
+	printf("Heap 2 instance have now zero nodes and still is available.\n\n");
+
+	fh1 = fibheap_union(fh1, fh2);	// merge heap 1 with heap 2
+
+	printf("Print heap 1:\n");
+	fibheap_print(fh1);
+	/*
+	 * Root nodes: 3-->11-->7-->19
+	 * */
+
+	printf("Print heap 2:\n");
+	fibheap_print(fh2);
+	printf("\n\n");
+	/*
+	 * Root nodes: The heap is empty
+	 * */
+
+	fibheap_destroynode(fh, mini1);
+	fibheap_destroynode(fh, delnode);
+
+	fibheap_destroy(fh);
+	printf("Fibonacci heap destroyed successfully.\n");
+
+	fibheap_destroy(fh1);
+	printf("Fibonacci heap 1 destroyed successfully.\n");
+
+	fibheap_destroy(fh2);
+	printf("Fibonacci heap 2 destroyed successfully.\n\n");
+}
+
+/*
+ * Binary heap array demo.
+ * */
+void binaryheaparray_demo() {
+
+	/*
+	 * Function to compare key with given data.
+	 * Returns 1 if data > key, -1 if data < key, 0 if is equal.
+	 * */
+	int compare(const void* data, const void* key) {
+
+		if ((data == NULL) && (key == NULL))
+			return 0;
+		else if (data == NULL)
+			return -1;
+		else if (key == NULL)
+			return 1;
+		else {
+			//struct binarytreenode* datanode = (struct binarytreenode*)data;
+			int idata = *((int*)(data));
+			int ikey = *((int*)key);
+
+			if (idata == ikey)
+				return 0;
+			else if (idata > ikey)
+				return 1;
+			else
+				return -1;
+		}
+	}
+
+	/*
+	 * Prints node data
+	 * */
+	void printdata(void* data)
+	{
+		if (data) {
+			printf("%d", *((int*)data));
+		}
+	}
+
+	printf("___________\n");
+	printf("BINARY HEAP ARRAY\n");
+	printf("\nBINARY HEAP ARRAY demo -----------\n\n");
+
+	int intdata[] = {3,2,15,5,4,45};
+	int n = 6;	//sizeof(intdata) / sizeof(intdata[0]);
+
+	void* datalist[] = { &intdata[0], &intdata[1], &intdata[2], &intdata[3],
+						  &intdata[4], &intdata[5] };
+
+	int capacity = 11;
+
+	int* max = (int*)malloc(sizeof(int));
+	*max = INT_MAX;
+	int* min = (int*)malloc(sizeof(int));
+	*min = INT_MIN;
+
+	printf("\nMIN BINARY HEAP -----------\n\n");
+
+	// create empty min heap
+	struct heap* minbinaryheap = minbinaryheap_createHeap(capacity, NULL, 0,
+														(void*)min, (void*)max,
+														compare, printdata, NULL);
+
+	printf("Min binary heap created successfully (empty)\n");
+	printf("Heap size: %d\n\n", minbinaryheap->size);
+	printf("Load heap with elements in the following order:\n");
+
+	for (int i = 0; i < n; ++i) {
+		printf("%d ", intdata[i]);
+	}
+
+	printf("\n\n");
+
+	for (int i = 0; i < n; ++i) {
+		minbinaryheap_insert(minbinaryheap, datalist[i]);
+	}
+
+	printf("Heap size: %d\n\n", minbinaryheap->size);
+	printf("Print heap (level ordered):\n");
+	minbinaryheap_print(minbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 2 3 15 5 4 45
+	 *
+	 *           	   2
+	 *	       3              15
+	 * 	   5      4        45
+	 *
+	 * */
+
+	printf("Heap size: %d\n", minbinaryheap->size);
+	printf("Extract min value: %d\n\n", *((int*)(minbinaryheap_extract(minbinaryheap))));
+
+	printf("Print heap (level ordered):\n");
+	minbinaryheap_print(minbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 3 4 15 5 45
+	 *
+	 *              3
+	 *	       4         15
+	 * 	    5	 45
+	 *
+	 * */
+
+	printf("Peek current min value: %d\n", *((int*)(minbinaryheap_peek(minbinaryheap))));
+	printf("Decrease key at index 2 = '%d' to value '1'\n", *((int*)(minbinaryheap->arr[2])));
+	int* p1 = malloc(sizeof(int));
+	*p1 = 1;
+	minbinaryheap_decreasekey(minbinaryheap, 2, p1);
+
+	printf("Print heap (level ordered):\n");
+	minbinaryheap_print(minbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 1 4 3 5 45
+	 *
+	 *              1
+	 *	       4         3
+	 * 	    5	 45
+	 *
+	 * */
+
+	printf("Delete value '4' at index 1 from heap:\n");
+	minbinaryheap_delete(minbinaryheap, 1);
+	printf("Print heap (level ordered):\n");
+	minbinaryheap_print(minbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 1 5 3 45
+	 *
+	 *              1
+	 *	       5         3
+	 * 	    45
+	 *
+	 * */
+
+	printf("Peek current min value: %d\n", *((int*)minbinaryheap_peek(minbinaryheap)));
+	minbinaryheap_destroy(minbinaryheap);
+
+	printf("Min binary heap destroyed successfully.\n\n");
+
+	printf("--------------------------------------------------\n");
+	printf("--------------------------------------------------\n");
+
+	printf("\nMAX BINARY HEAP -----------\n\n");
+
+	// create empty max heap
+	struct heap* maxbinaryheap = maxbinaryheap_createHeap(capacity, NULL, 0,
+														(void*)min, (void*)max,
+														compare, printdata, NULL);
+
+	printf("Max binary heap created successfully (empty)\n");
+	printf("Heap size: %d\n\n", maxbinaryheap->size);
+	printf("Load heap with elements in the following order:\n");
+
+	for (int i = 0; i < n; ++i) {
+		printf("%d ", intdata[i]);
+	}
+
+	printf("\n\n");
+
+	for (int i = 0; i < n; ++i) {
+		maxbinaryheap_insert(maxbinaryheap, datalist[i]);
+	}
+
+	printf("Heap size: %d\n\n", maxbinaryheap->size);
+	printf("Print heap (level ordered):\n");
+	maxbinaryheap_print(maxbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 45 5 15 2 4 3
+	 *
+	 *           	  45
+	 *	       5              15
+	 * 	   2      4        3
+	 *
+	 * */
+
+	printf("Heap size: %d\n", maxbinaryheap->size);
+	printf("Extract max value: %d\n\n", *((int*)(maxbinaryheap_extract(maxbinaryheap))));
+
+	printf("Print heap (level ordered):\n");
+	maxbinaryheap_print(maxbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 15 5 3 2 4
+	 *
+	 *              15
+	 *	       5         3
+	 * 	    2	 4
+	 *
+	 * */
+
+	*p1 = 100;
+	printf("Peek current max value: %d\n", *((int*)(maxbinaryheap_peek(maxbinaryheap))));
+	printf("Increase key at index 2 = '%d' to value '%d'\n", *((int*)(maxbinaryheap->arr[2])), *p1);
+
+	maxbinaryheap_increasekey(maxbinaryheap, 2, p1);
+
+	printf("Print heap (level ordered):\n");
+	maxbinaryheap_print(maxbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 100 5 15 2 4
+	 *
+	 *              100
+	 *	       5         15
+	 * 	    2	 4
+	 *
+	 * */
+
+	printf("Delete value '5' at index 1 from heap:\n");
+	maxbinaryheap_delete(maxbinaryheap, 1);
+	printf("Print heap (level ordered):\n");
+	maxbinaryheap_print(maxbinaryheap);
+	printf("\n");
+	/*
+	 *  Level order: 100 4 15 2
+	 *
+	 *             100
+	 *	       4         15
+	 * 	    2
+	 *
+	 * */
+
+	printf("Peek current max value: %d\n", *((int*)maxbinaryheap_peek(maxbinaryheap)));
+	maxbinaryheap_destroy(maxbinaryheap);
+	printf("Max binary heap destroyed successfully.\n\n");
+
+	free(p1);
+	free(max);
+	free(min);
+}
 
 /*
  * Red-black tree demo.
@@ -1423,5 +1817,8 @@ int main() {
 	avltree_demo();
 	printf("\n\n");
 	rbtree_demo();
+	printf("\n\n");
+	binaryheaparray_demo();
+	fibonacciheap_demo();
 	return EXIT_SUCCESS;
 }
