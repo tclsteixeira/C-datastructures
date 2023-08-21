@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/arraydeque.c \
 ../src/arraylist.c \
 ../src/avltree.c \
 ../src/binarysearch.c \
@@ -12,6 +13,7 @@ C_SRCS += \
 ../src/circdbllinkedlist.c \
 ../src/circlinkedlist.c \
 ../src/dbllinkedlist.c \
+../src/dbllinkedlistdeque.c \
 ../src/fibonacciheap.c \
 ../src/hashtable.c \
 ../src/linkedlist.c \
@@ -23,6 +25,7 @@ C_SRCS += \
 ../src/redblacktree.c 
 
 C_DEPS += \
+./src/arraydeque.d \
 ./src/arraylist.d \
 ./src/avltree.d \
 ./src/binarysearch.d \
@@ -31,6 +34,7 @@ C_DEPS += \
 ./src/circdbllinkedlist.d \
 ./src/circlinkedlist.d \
 ./src/dbllinkedlist.d \
+./src/dbllinkedlistdeque.d \
 ./src/fibonacciheap.d \
 ./src/hashtable.d \
 ./src/linkedlist.d \
@@ -42,6 +46,7 @@ C_DEPS += \
 ./src/redblacktree.d 
 
 OBJS += \
+./src/arraydeque.o \
 ./src/arraylist.o \
 ./src/avltree.o \
 ./src/binarysearch.o \
@@ -50,6 +55,7 @@ OBJS += \
 ./src/circdbllinkedlist.o \
 ./src/circlinkedlist.o \
 ./src/dbllinkedlist.o \
+./src/dbllinkedlistdeque.o \
 ./src/fibonacciheap.o \
 ./src/hashtable.o \
 ./src/linkedlist.o \
@@ -73,7 +79,7 @@ src/%.o: ../src/%.c src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/fibonacciheap.d ./src/fibonacciheap.o ./src/hashtable.d ./src/hashtable.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o ./src/maxbinaryheap.d ./src/maxbinaryheap.o ./src/minbinaryheap.d ./src/minbinaryheap.o ./src/redblacktree.d ./src/redblacktree.o
+	-$(RM) ./src/arraydeque.d ./src/arraydeque.o ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/dbllinkedlistdeque.d ./src/dbllinkedlistdeque.o ./src/fibonacciheap.d ./src/fibonacciheap.o ./src/hashtable.d ./src/hashtable.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o ./src/maxbinaryheap.d ./src/maxbinaryheap.o ./src/minbinaryheap.d ./src/minbinaryheap.o ./src/redblacktree.d ./src/redblacktree.o
 
 .PHONY: clean-src
 

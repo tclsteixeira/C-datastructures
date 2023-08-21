@@ -3,7 +3,7 @@
  *
  *  Created on: 05/03/2023
  *      Author: Tiago C. Teixeira
- * Description: A generic double linked list.
+ * Description: C headers for a generic double linked list data structure.
  *
  *  Advantages of DLL over the singly linked list:
  *
@@ -42,6 +42,9 @@
 #ifndef DBLLINKEDLIST_H_
 	#define DBLLINKEDLIST_H_
 
+	typedef void (*dbllinkedlist_freedata)(void* data);
+	typedef void (*dbllinkedlist_printdata)(void* data);
+
 	// Represents a node in a double linked list
 	struct dbllinkedlistnode {
 		void* data;
@@ -51,6 +54,8 @@
 
 	// Double linked list data structure
 	struct dbllinkedlist {
+		dbllinkedlist_printdata printdata;
+		dbllinkedlist_freedata freedata;
 		int (*isequal)(const void* a, const void* b);
 		struct dbllinkedlistnode** headp;	// pointer to first node
 		struct dbllinkedlistnode** tailp;	// pointer to last node
@@ -105,10 +110,27 @@
 	void* dbllinkedlist_getdata_at(struct dbllinkedlist* list, uint position);
 
 	/*
+	 * Removes first node.
+	 * Returns removed node if succeeded, NULL otherwise.
+	 * */
+	struct dbllinkedlistnode* dbllinkedlist_remove_first(struct dbllinkedlist* list);
+
+	/*
+	 * Removes last node.
+	 * Returns removed node if succeeded, NULL otherwise.
+	 * */
+	struct dbllinkedlistnode* dbllinkedlist_remove_last(struct dbllinkedlist* list);
+
+	/*
 	 * Removes item from list.
 	 * Returns reference to removed node if succeeded, NULL otherwise.
 	 * */
 	struct dbllinkedlistnode* dbllinkedlist_remove(struct dbllinkedlist* list, const void* data);
+
+	/*
+	 * Removes all elements from list.
+	 */
+	void dbllinkedlist_erase(struct dbllinkedlist* list);
 
 	/**
 	 * Releases all resources from list.

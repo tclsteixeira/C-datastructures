@@ -24,7 +24,154 @@
 #include "minbinaryheap.h"
 #include "maxbinaryheap.h"
 #include "fibonacciheap.h"
+#include "arraydeque.h"
+#include "dbllinkedlistdeque.h"
 
+/*
+ * Double linked list deque demo.
+ * */
+void dbllinkedlistdeque_demo() {
+
+//	/*
+//	 * Checks for equality
+//	 * */
+//	int isequal(const void* a, const void* b) {
+//		if (*(int*)a == *(int*)b)
+//			return 1;
+//		else
+//			return 0;
+//	}
+
+	/*
+	 * Prints node data
+	 * */
+	void printdata(void* data)
+	{
+		if (data) {
+			printf("%d", *((int*)data));
+		}
+	}
+
+	printf("___________\n");
+	printf("DOUBLE LINKED LIST DEQUE\n\n");
+	printf("DOUBLE LINKED LIST DEQUE demo -----------\n\n");
+
+	// Deque initialization
+	struct dbllinkedlistdeque* q = dbllinkedlistdeque_create(printdata, NULL);
+
+	int intdata[] = { 5, 10, 15 };
+
+	// insert 5 at front
+	printf("Insert element '%d' at rear end\n", intdata[0]);
+	dbllinkedlistdeque_push_back(q, &intdata[0]);
+	// insert 10 at back
+	printf("Insert element '%d' at rear end\n", intdata[1]);
+	dbllinkedlistdeque_push_back(q, &intdata[1]);
+
+	printf("Rear end element: ");
+	printdata(dbllinkedlistdeque_back(q)); printf("\n");
+
+	dbllinkedlistdeque_pop_back(q);
+	printf("After deleting rear element, new rear is: ");
+	printdata(dbllinkedlistdeque_back(q)); printf("\n");
+
+	printf("Inserting element '%d' at front end \n", intdata[2]);
+	dbllinkedlistdeque_push_front(q, &intdata[2]);
+
+	printf("Front end element: ");
+	printdata(dbllinkedlistdeque_front(q)); printf("\n");
+
+	printf("Number of elements in Deque: %ld\n", dbllinkedlistdeque_size(q));
+
+	dbllinkedlistdeque_pop_front(q);
+	printf("After deleting front element, new front is: ");
+	printdata(dbllinkedlistdeque_front(q)); printf("\n");
+
+	dbllinkedlistdeque_destroy(q);
+	printf("Double linked list deque destroyed successfully.\n");
+}
+
+/*
+ * Array deque demo.
+ * */
+void arraydeque_demo() {
+
+	/*
+	 * Prints node data
+	 * */
+	void printdata(void* data)
+	{
+		if (data) {
+			printf("%d", *((int*)data));
+		}
+	}
+
+	printf("___________\n");
+	printf("ARRAY DEQUE\n\n");
+	printf("ARRAY DEQUE demo -----------\n\n");
+
+	// Deque initialization
+	struct arraydeque* q = arraydeque_create(printdata, NULL);
+
+	int n = 19;
+	int intdata[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17, 18 };
+
+	// Iterate range [1, 9],
+	// push even numbers at the back
+	// and push odd numbers at the front
+	for (int i = 1; i < n; i++)
+		if (i % 2 == 0)
+			arraydeque_push_back(q, &intdata[i]);
+		else
+			arraydeque_push_front(q, &intdata[i]);
+
+	// Print the current capacity
+	printf("Current capacity: %ld\n", q->capacity);
+
+	// Print the current size
+	printf("Current size: %ld\n", q->size);
+
+	// Print front element of deque
+	printf("Front element: ");
+	printdata(arraydeque_front(q));
+	printf("\n");
+
+	// Print last element of deque
+	printf("Rear element: ");
+	printdata(arraydeque_back(q));
+	printf("\n\n");
+
+	printf("Pop an element from front\n");
+	void* popfront = arraydeque_pop_front(q);
+	printf("Poped front element: ");
+	printdata(popfront);
+	printf("\n");
+
+	printf("Pop an element from back\n");
+	void* popback = arraydeque_pop_back(q);
+	printf("Poped back element: ");
+	printdata(popback);
+	printf("\n\n");
+
+	// Print the current capacity
+	printf("Current capacity: %ld\n", q->capacity);
+
+	// Print the current size
+	printf("Current size: %ld\n", q->size);
+
+	// Print front element of deque
+	printf("Front element: ");
+	printdata(arraydeque_front(q));
+	printf("\n");
+
+	// Print last element of deque
+	printf("Rear element: ");
+	printdata(arraydeque_back(q));
+	printf("\n\n");
+
+	arraydeque_destroy(q);
+	printf("Array deque destroyed successfully.\n");
+}
 
 /*
  * Fibonacci heap demo.
@@ -1467,7 +1614,7 @@ void doublelinklist_demo() {
 			return 0;
 	}
 
-	struct dbllinkedlist* list = dbllinkedlist_create(isequal);
+	struct dbllinkedlist* list = dbllinkedlist_create(isequal, NULL, NULL);
 
 	int data[] = {1,2,3,4};
 	int n = sizeof(data) / sizeof(data[0]);
@@ -1819,6 +1966,12 @@ int main() {
 	rbtree_demo();
 	printf("\n\n");
 	binaryheaparray_demo();
+	printf("\n\n");
 	fibonacciheap_demo();
+	printf("\n\n");
+	arraydeque_demo();
+	printf("\n\n");
+	dbllinkedlistdeque_demo();
 	return EXIT_SUCCESS;
 }
+

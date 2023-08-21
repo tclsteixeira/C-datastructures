@@ -44,13 +44,17 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "dbllinkedlist.h"
 #include <assert.h>
 
 /*
  * Creates a new empty double linked list.
  * */
-struct dbllinkedlist* dbllinkedlist_create(int (*isequal)(const void* a, const void* b)) {
+struct dbllinkedlist* dbllinkedlist_create(int (*isequal)(const void* a, const void* b),
+			dbllinkedlist_printdata printdatafunc,
+			dbllinkedlist_freedata freedatafunc)
+{
 	struct dbllinkedlist* result = NULL;
 	result = malloc(sizeof(*result));
 
@@ -75,6 +79,8 @@ struct dbllinkedlist* dbllinkedlist_create(int (*isequal)(const void* a, const v
 			result = NULL;
 		}
 
+		result->printdata = printdatafunc;
+		result->freedata = freedatafunc;
 		result->isequal = isequal;
 		result->size = 0;
 	}
@@ -363,12 +369,61 @@ struct dbllinkedlistnode* dbllinkedlist_remove(struct dbllinkedlist* list, const
 	return result;
 }
 
+/*
+ * Prints list data from start to end
+ */
+void dbllinkedlist_print(struct dbllinkedlist* list)
+{
+	if (dbllinkedlist_isempty(list))
+		printf("The list is empty!\n");
+	else
+	{
+		struct dbllinkedlistnode* node = dbllinkedlist_getfirst(list);
+		while (node != NULL)
+		{
+			if (node->data)
+				list->printdata(node->data);
+			else
+				printf("NULL");
+
+			node = node->next;
+			if (node)
+				printf("<-->");
+		}
+	}
+}
+
+/*
+ * Removes all elements from list.
+ */
+void dbllinkedlist_erase(struct dbllinkedlist* list)
+{
+	struct dbllinkedlistnode* node = NULL;
+	while (!dbllinkedlist_isempty(list))
+	{
+		node = dbllinkedlist_remove_first(list);
+		if (node)
+		{
+			if (node->data)
+				if (list->freedata != NULL)
+					list->freedata(node->data);
+
+			free(node);
+		}
+	}
+}
+
 /**
  * Releases all resources from list.
  */
 void dbllinkedlist_destroy(struct dbllinkedlist* list) {
 	struct dbllinkedlistnode* node = NULL;
+
 	while ((node = dbllinkedlist_remove_first(list)) != NULL) {
+		if (list->freedata != NULL)
+			if (node->data != NULL)
+				list->freedata(node->data);
+
 		free(node);
 	}
 
