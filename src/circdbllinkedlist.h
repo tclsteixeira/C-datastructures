@@ -42,9 +42,15 @@
 		struct circdbllinkedlistnode* prev;
 	};
 
+	typedef int (*circdbllinkedlist_isequal)(const void* a, const void* b);
+	typedef void (*circdbllinkedlist_printdata)(const void* data);
+	typedef void (*circdbllinkedlist_freedata)(void* data);
+
 	// Double linked list data structure
 	struct circdbllinkedlist {
-		int (*isequal)(const void* a, const void* b);
+		circdbllinkedlist_isequal isequal;
+		circdbllinkedlist_printdata printdata;
+		circdbllinkedlist_freedata freedata;
 		struct circdbllinkedlistnode** headp;	// pointer to first node
 		size_t size;	// number of elements in list
 	};
@@ -52,7 +58,9 @@
 	/*
 	 * Creates a new circular double linked list.
 	 * */
-	struct circdbllinkedlist* circdbllinkedlist_create(int (*isequalfunc)(const void* a, const void* b));
+	struct circdbllinkedlist* circdbllinkedlist_create( circdbllinkedlist_isequal isequal,
+														circdbllinkedlist_printdata printdata,
+														circdbllinkedlist_freedata freedata );
 
 	/*
 	 * Inserts at beginning of list.

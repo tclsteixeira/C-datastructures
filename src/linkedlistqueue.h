@@ -72,13 +72,19 @@
 	/*
 	 * Creates a new instance of a linkedlistqueue.
 	 * */
-	struct linkedlistqueue* linkedlistqueue_create();
+	struct linkedlistqueue* linkedlistqueue_create(  );
+
+	/*
+	 * Creates a new instance of a linkedlistqueue with function to free data.
+	 * */
+	struct linkedlistqueue* linkedlistqueue_create_freedata( linkedlist_freedata freedata );
 
 	/*
 	 * Creates a new instance of a linkedlistqueue.
 	 * Returns a new empty queue instance if succeeded, NULL otherwise.
 	 * */
-	struct linkedlistqueue* linkedlistqueue_createWithSizeLimit(uint maxsize);
+	struct linkedlistqueue* linkedlistqueue_createWithSizeLimit( uint maxsize,
+																 linkedlist_freedata freedata );
 
 	/*
 	 * Gets the size of queue.

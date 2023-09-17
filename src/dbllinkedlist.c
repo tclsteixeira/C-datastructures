@@ -51,9 +51,9 @@
 /*
  * Creates a new empty double linked list.
  * */
-struct dbllinkedlist* dbllinkedlist_create(int (*isequal)(const void* a, const void* b),
-			dbllinkedlist_printdata printdatafunc,
-			dbllinkedlist_freedata freedatafunc)
+struct dbllinkedlist* dbllinkedlist_create( dbllinkedlist_isequal isequalfunc,
+											dbllinkedlist_printdata printdatafunc,
+											dbllinkedlist_freedata freedatafunc )
 {
 	struct dbllinkedlist* result = NULL;
 	result = malloc(sizeof(*result));
@@ -81,7 +81,7 @@ struct dbllinkedlist* dbllinkedlist_create(int (*isequal)(const void* a, const v
 
 		result->printdata = printdatafunc;
 		result->freedata = freedatafunc;
-		result->isequal = isequal;
+		result->isequal = isequalfunc;
 		result->size = 0;
 	}
 

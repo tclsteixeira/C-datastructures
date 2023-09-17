@@ -84,14 +84,22 @@
 #include <stdlib.h>
 #include "linkedliststack.h"
 
+/*
+ * Creates a new stack instance.
+ * */
+struct linkedliststack* linkedliststack_create( )
+{
+	struct linkedliststack* result = linkedliststack_create_freedata( NULL );
+	return result;
+}
 
 /*
  * Creates a new stack instance.
  * */
-struct linkedliststack* linkedliststack_create() {
+struct linkedliststack* linkedliststack_create_freedata(linkedlist_freedata freedata ) {
 	struct linkedliststack* result = NULL;
 
-	struct linkedlist* list = linkedlist_create(NULL);
+	struct linkedlist* list = linkedlist_create( NULL, freedata );
 	if (list == NULL)
 		return NULL;
 	else

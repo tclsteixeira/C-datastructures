@@ -45,7 +45,9 @@
 /*
  * Creates a new linked list.
  * */
-struct linkedlist* linkedlist_create(int (*isequalfunc)(const void* a, const void* b)) {
+struct linkedlist* linkedlist_create( linkedlist_isequal isequalfunc,
+		  	  	  	  	  	  	  	  linkedlist_freedata freedatafunc )
+{
 	struct linkedlist* result = NULL;
 	result = malloc(sizeof(*result));
 	if (result != NULL) {
@@ -74,6 +76,7 @@ struct linkedlist* linkedlist_create(int (*isequalfunc)(const void* a, const voi
 
 	result->size = 0;
 	result->isequalfunc = isequalfunc;
+	result->freedata = freedatafunc;
 	return result;
 }
 
@@ -284,7 +287,7 @@ struct linkedlistnode* linkedlist_remove(struct linkedlist* list, const void* da
  * Note: Do not free memory from returned node reference. That is a job to be done
  * 		 by the linked list when destroyed.
  * */
-void* linkedlist_getnode(const struct linkedlist* list, const void* data) {
+struct linkedlistnode* linkedlist_getnode(const struct linkedlist* list, const void* data) {
 	assert(list != NULL);
 	struct linkedlistnode* node = *(list->headp);
 	while ((node != NULL) && (!list->isequalfunc(node->data, data))) {
@@ -339,6 +342,10 @@ void linkedlist_destroy(struct linkedlist* list) {
 	struct linkedlistnode* node = NULL;
 
 	while ((node = linkedlist_remove_first(list)) != NULL)  {
+		if (node->data != NULL)
+			if (list->freedata != NULL)
+				list->freedata(node->data);
+
 		free(node);
 	}
 

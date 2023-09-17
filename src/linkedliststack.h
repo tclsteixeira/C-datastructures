@@ -90,7 +90,12 @@
 	/*
 	 * Creates a new stack instance.
 	 * */
-	struct linkedliststack* linkedliststack_create();
+	struct linkedliststack* linkedliststack_create( );
+
+	/*
+	 * Creates a new stack instance.
+	 * */
+	struct linkedliststack* linkedliststack_create_freedata( linkedlist_freedata freedata );
 
 	/*
 	 * Checks if stack is empty.

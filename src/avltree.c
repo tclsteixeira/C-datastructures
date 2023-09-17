@@ -596,7 +596,7 @@ int avltree_getSizeIt(const struct avltree* tree)
         return 0;
 
     // Using level order Traversal.
-    struct linkedlistqueue* q = linkedlistqueue_create();
+    struct linkedlistqueue* q = linkedlistqueue_create( NULL );
     int count = 1;
 
     linkedlistqueue_enqueue(q, root);

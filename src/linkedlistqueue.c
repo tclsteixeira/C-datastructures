@@ -69,17 +69,27 @@
  * Returns a new empty queue instance if succeeded, NULL otherwise.
  * Max number of nodes will be set to maximum value a uint can store.
  * */
-struct linkedlistqueue* linkedlistqueue_create() {
-	return linkedlistqueue_createWithSizeLimit(UINT_MAX);
+struct linkedlistqueue* linkedlistqueue_create( ) {
+	return linkedlistqueue_createWithSizeLimit(UINT_MAX, NULL);
+}
+
+/*
+ * Creates a new instance of a linkedlistqueue with function to free data.
+ * */
+struct linkedlistqueue* linkedlistqueue_create_freedata( linkedlist_freedata freedata )
+{
+	return linkedlistqueue_createWithSizeLimit(UINT_MAX, freedata );
 }
 
 /*
  * Creates a new instance of a linkedlistqueue.
  * Returns a new empty queue instance if succeeded, NULL otherwise.
  * */
-struct linkedlistqueue* linkedlistqueue_createWithSizeLimit(uint maxsize) {
+struct linkedlistqueue* linkedlistqueue_createWithSizeLimit( uint maxsize,
+															 linkedlist_freedata freedata )
+{
 	struct linkedlistqueue* result = NULL;
-	struct linkedlist* queue = linkedlist_create(NULL);
+	struct linkedlist* queue = linkedlist_create( NULL, freedata );
 
 	if (queue == NULL)
 		return NULL;

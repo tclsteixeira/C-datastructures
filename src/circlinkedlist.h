@@ -71,9 +71,15 @@
 		struct circlinkedlistnode* next;
 	};
 
+	typedef int (*circlinkedlist_isequal)(const void* a, const void* b);
+	typedef void (*circlinkedlist_printdata)(const void* data);
+	typedef void (*circlinkedlist_freedata)(void* data);
+
 	// Circular linked list data structure
 	struct circlinkedlist {
-		int (*isequal)(const void* a, const void* b);
+		circlinkedlist_isequal isequal;
+		circlinkedlist_printdata printdata;
+		circlinkedlist_freedata freedata;
 		struct circlinkedlistnode** tailp;	// pointer to last node
 		size_t size;	// number of elements in list
 	};
@@ -81,7 +87,9 @@
 	/*
 	 * Creates a new linked list.
 	 * */
-	struct circlinkedlist* circlinkedlist_create();
+	struct circlinkedlist* circlinkedlist_create( circlinkedlist_isequal isequalfunc,
+												  circlinkedlist_printdata printdatafunc,
+												  circlinkedlist_freedata freedatafunc );
 
 	/*
 	 * Inserts at beginning of list.

@@ -124,8 +124,9 @@
  * Function to create a new red-black tree.
  * Returns pointer to created red-black tree instance is succeeded, NULL otherwise.
  */
-struct rbtree* rbtree_create(void* rootdata, rbtree_calcdatasize calcdatasizefunc, rbtree_cmp comparefunc, rbtree_freedata freedatafunc,
-		rbtree_printnode printnodefunc, rbtree_copydata copydatafunc)
+struct rbtree* rbtree_create( void* rootdata, rbtree_calcdatasize calcdatasizefunc,
+							  rbtree_cmp comparefunc, rbtree_freedata freedatafunc,
+							  rbtree_printdata printdatafunc, rbtree_copydata copydatafunc)
 {
 	struct rbtree* result = (struct rbtree*)malloc(sizeof(*result));
 	if (result != NULL) {
@@ -143,7 +144,7 @@ struct rbtree* rbtree_create(void* rootdata, rbtree_calcdatasize calcdatasizefun
 			result->copydata = copydatafunc;
 			result->compare = comparefunc;
 			result->freedata = freedatafunc;
-			result->printnode = printnodefunc;
+			result->printdata = printdatafunc;
 		}
 	}
 
@@ -501,6 +502,7 @@ struct rbtreenode* rbtree_fixRedRed(struct rbtreenode* root, struct rbtreenode* 
 
 /*
  * Inserts the given value to tree.
+ * Returns '1' (true) if succeeded, '0' (false) otherwise.
  *
  * Algorithm:
  *
@@ -538,8 +540,9 @@ struct rbtreenode* rbtree_fixRedRed(struct rbtreenode* root, struct rbtreenode* 
  * Source: https://www.geeksforgeeks.org/insertion-in-red-black-tree/
  *
  */
-struct rbtreenode* rbtree_insert(struct rbtree* tree, void* data)
+int rbtree_insert(struct rbtree* tree, void* data)
 {
+	int result = 0;	// false
 	struct rbtreenode* root = tree->root;
     struct rbtreenode* newNode = rbtree_createnode(NULL, data);
     if (root == NULL) {
@@ -547,12 +550,15 @@ struct rbtreenode* rbtree_insert(struct rbtree* tree, void* data)
     	// simply insert value at root
     	newNode->c = RB_BLACK;
     	root = newNode;
+    	result = 1;	// true
     } else {
     	struct rbtreenode* temp = rbtree_search_for_delete_insert(tree, data);
 
     	if (tree->compare(temp->data, data) == 0) {
     		// return if value already exists
-    		return root;
+    		printf("Tree insertion error: duplicated values are not allowed!");
+    		return result;
+//    		return root;
     	}
 
     	// if value is not found, search returns the node
@@ -568,9 +574,11 @@ struct rbtreenode* rbtree_insert(struct rbtree* tree, void* data)
 
     	// fix red red violation if exists
     	root = rbtree_fixRedRed(root, newNode);
+    	result = 1;		//true
     }
 
-    return root;
+    tree->root = root;
+    return result;
 }
 
 ///*
@@ -864,7 +872,7 @@ struct rbtreenode* rbtree_fixDoubleBlack(struct rbtreenode* root, struct rbtreen
 
 /*
  * Deletes the given node
- * Returns root node.
+ * Returns deleted node data if succeeded, NULL otherwise.
  *
  * Like Insertion, recoloring and rotations are used to maintain the Red-Black properties.
  * In the insert operation, we check the color of the uncle to decide the appropriate case.
@@ -928,8 +936,9 @@ struct rbtreenode* rbtree_fixDoubleBlack(struct rbtreenode* root, struct rbtreen
  * Source: https://www.geeksforgeeks.org/deletion-in-red-black-tree/
  *
  */
-struct rbtreenode* rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
+void* rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
 {
+	void* result = NULL;
 	struct rbtreenode* root = tree->root;
 	struct rbtreenode* u = rbtree_BSTreplace(v);
 
@@ -963,18 +972,23 @@ struct rbtreenode* rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
 			}
 		}
 
-		rbtree_destroynode(tree, v);
-		return root;
+		result = v->data;
+		free(v);
+//		rbtree_destroynode(tree, v);
+		tree->root = root;
+		return result;
 	}
 
 	if (v->left == NULL || v->right == NULL) {
 		// v has 1 child
 		if (v == root) {
+			result = v->data;
 			// v is root, assign the value of u to v, and delete u
 			tree->copydata(v, u);
 			//v->val = u->val;
 			v->left = v->right = NULL; v->parent = NULL;
-			rbtree_destroynode(tree, u);
+			free(u);
+//			rbtree_destroynode(tree, u);
 		} else {
 			// Detach v from tree and move u up
 			if (rbtree_isOnLeft(v)) {
@@ -983,7 +997,9 @@ struct rbtreenode* rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
 				parent->right = u;
 			}
 
-			rbtree_destroynode(tree, v);
+			result = v->data;
+			free(v);
+//			rbtree_destroynode(tree, v);
 			u->parent = parent;
 
 			if (uvBlack) {
@@ -995,41 +1011,49 @@ struct rbtreenode* rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
 			}
 		}
 
-		return root;
+		tree->root = root;
+		return result;
+//		return root;
 	}
 
     // v has 2 children, swap values with successor and recurse
     rbtree_swapvalues(tree, u, v);
-    root = rbtree_deletenode(tree, u);
-
-    return root;
+    result = rbtree_deletenode(tree, u);
+//    root = rbtree_deletenode(tree, u);
+    return result;
+//    return root;
 }
 
 /*
  * Utility function that deletes the node with given value.
- * Returns root node.
+ * Returns deleted node data if succeeded, NULL otherwise.
  *
  * See rbtree_deletenode(struct rbtree* tree, struct rbtreenode* v)
  *
  * */
-struct rbtreenode* rbtree_delete(struct rbtree* tree, const void* val, int* success)
+void* rbtree_delete(struct rbtree* tree, const void* val)	//, int* success)
 {
-	*success = 1;
+	void* result = NULL;
+//	*success = 1;
 	struct rbtreenode* root = tree->root;
 	if (root == NULL)
 		// Tree is empty
-		return root;
+		return result;
+//		return root;
 
 	struct rbtreenode* v = rbtree_search_for_delete_insert(tree, val);
 
     if (tree->compare(v->data, val) != 0) {
-    	*success = 0;
+//    	*success = 0;
     	printf("No node found to delete!");
-    	return root;
+    	return result;
+//    	return root;
     }
 
-    root = rbtree_deletenode(tree, v);
-    return root;
+    result = rbtree_deletenode(tree, v);
+//    root = rbtree_deletenode(tree, v);
+    return result;
+//    return root;
 }
 
 /*
@@ -1379,13 +1403,21 @@ void rbtree_print(struct rbtree* tree, char* spaces) {
 	}
 
     printTree(h, col, M, tree->root, col / 2, 0, h, spaces);
+    struct rbtreenode* node = NULL;
+
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < col; j++) {
         	if ((M[i][j] == NULL) || (M[i][j]->data == NULL))
         		printf(spaces);
         	else
         	{
-        		tree->printnode(M[i][j]);
+        		node = M[i][j];
+        		tree->printdata(node->data);
+        		if (node->c == RB_RED)
+					printf("%s", "-R");
+				else
+					printf("%s", "-B");
+
         		printf(hs);
         	}
         }

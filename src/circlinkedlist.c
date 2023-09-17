@@ -69,10 +69,15 @@
 /*
  * Creates a new empty circular linked list.
  * */
-struct circlinkedlist* circlinkedlist_create() {
+struct circlinkedlist* circlinkedlist_create( circlinkedlist_isequal isequalfunc,
+		  	  	  	  	  	  	  	  	  	  circlinkedlist_printdata printdatafunc,
+											  circlinkedlist_freedata freedatafunc) {
 	struct circlinkedlist* result = NULL;
 	result = malloc(sizeof(*result));
 	if (result != NULL) {
+		result->isequal = isequalfunc;
+		result->printdata = printdatafunc;
+		result->freedata = freedatafunc;
 		struct circlinkedlistnode** tp = malloc(sizeof *tp);
 		if (tp != NULL) {
 			*tp = NULL;
@@ -332,6 +337,10 @@ struct circlinkedlistnode* circlinkedlist_remove(struct circlinkedlist* list, co
 void circlinkedlist_destroy(struct circlinkedlist* list) {
 	struct circlinkedlistnode* node = NULL;
 	while ((node = circlinkedlist_remove_first(list)) != NULL) {
+		if (list->freedata)
+			if (node->data != NULL)
+				list->freedata(node->data);
+
 		free(node);
 	}
 

@@ -45,9 +45,13 @@
 		struct linkedlistnode* next;
 	};
 
+	typedef void (*linkedlist_freedata)(void* data);
+	typedef int (*linkedlist_isequal)(const void* a, const void* b);
+
 	// Linked list data structure
 	struct linkedlist {
-		int (*isequalfunc)(const void* a, const void* b);	// function to check if two elements are equal
+		linkedlist_isequal isequalfunc;			// function to check if two elements are equal
+		linkedlist_freedata freedata;			// function to release data
 		struct linkedlistnode** headp;			// pointer to first node
 		struct linkedlistnode** tailp;			// pointer to last node
 		size_t size;							// number of elements in list
@@ -56,7 +60,8 @@
 	/*
 	 * Creates a new linked list.
 	 * */
-	struct linkedlist* linkedlist_create();
+	struct linkedlist* linkedlist_create( linkedlist_isequal isequalfunc,
+										  linkedlist_freedata freedatafunc );
 
 	/*
 	 * Checks if list is empty.
@@ -92,6 +97,11 @@
 	 * */
 	void* linkedlist_getdata_at(const struct linkedlist* list, uint position);
 
+	/*
+	 * Gets list node that matches given data.
+	 */
+	struct linkedlistnode* linkedlist_getnode( const struct linkedlist* list,
+											   const void* data );
 
 	/*
 	 * Gets data from a node that matches given value.

@@ -132,9 +132,11 @@
 	// callback function to (hard) copy data from one tree node to another
 	typedef size_t (*rbtree_calcdatasize)(const void* data);
 	typedef void (*rbtree_copydata)(void* dest, const void* from);
-	typedef int (*rbtree_cmp)(const void* data, const void* key);
+	typedef int (*rbtree_cmp)(const void* data1, const void* data2);
 	typedef void (*rbtree_freedata)(void* data);
-	typedef void (*rbtree_printnode)(struct rbtreenode* node);
+	typedef void (*rbtree_printdata)(const void* data);
+//	typedef void (*rbtree_printnode)(struct rbtreenode* node);
+
 
 		struct rbtree {
 			struct rbtreenode* root;
@@ -142,7 +144,9 @@
 			rbtree_copydata copydata;	// (hard) copy data function from one node to another
 			rbtree_cmp compare;			// compare function (returns 0, 1 or -1)
 			rbtree_freedata freedata;	// function to release data from memory.
-			rbtree_printnode printnode;	// function to print data node
+			rbtree_printdata printdata;	// function to print node's data
+
+//			rbtree_printnode printnode;	// function to print data node
 		};
 
 		/*
@@ -151,7 +155,7 @@
 		 */
 		struct rbtree* rbtree_create(void* rootdata, rbtree_calcdatasize calcdatasizefunc,
 				rbtree_cmp comparefunc, rbtree_freedata freedatafunc,
-				rbtree_printnode printnodefunc, rbtree_copydata copydatafunc);
+				rbtree_printdata printdatafunc, rbtree_copydata copydatafunc);
 
 		/*
 		 * Function to create a new red black tree node.
@@ -160,6 +164,7 @@
 
 		/*
 		 * Inserts the given value to tree.
+		 * Returns '1' (true) if succeeded, '0' (false) otherwise.
 		 *
 		 * Algorithm:
 		 *
@@ -197,11 +202,11 @@
 		 * Source: https://www.geeksforgeeks.org/insertion-in-red-black-tree/
 		 *
 		 */
-		struct rbtreenode* rbtree_insert(struct rbtree* tree, void* data);
+		int rbtree_insert(struct rbtree* tree, void* data);
 
 		/*
 		 * Deletes the given node
-		 * Returns root node.
+		 * Returns deleted node data if succeeded, NULL otherwise.
 		 *
 		 * Like Insertion, recoloring and rotations are used to maintain the Red-Black properties.
 		 * In the insert operation, we check the color of the uncle to decide the appropriate case.
@@ -265,7 +270,7 @@
 		 * Source: https://www.geeksforgeeks.org/deletion-in-red-black-tree/
 		 *
 		 */
-		struct rbtreenode* rbtree_delete(struct rbtree* tree, const void* val, int* success);
+		void* rbtree_delete(struct rbtree* tree, const void* val);	//, int* success);
 //		struct rbtreenode* rbtree_delete(struct rbtree* tree, struct rbtreenode* v);
 
 		/*

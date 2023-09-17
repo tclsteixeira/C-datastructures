@@ -11,7 +11,6 @@
 #include "binarysearch.h"
 #include "circdbllinkedlist.h"
 #include "circlinkedlist.h"
-#include "hashtable.h"
 #include "linkedlist.h"
 #include "dbllinkedlist.h"
 #include "linkedlistqueue.h"
@@ -26,6 +25,469 @@
 #include "fibonacciheap.h"
 #include "arraydeque.h"
 #include "dbllinkedlistdeque.h"
+#include "hashtable_lp.h"
+#include "hashset.h"
+#include "treeset.h"
+
+/*
+ * Treeset (ordered set) demo.
+ * */
+void treeset_demo()
+{
+	/*
+	 * Compare function for treeset elements.
+	 * Returns 0, 1 or -1.
+	 */
+	int compare(const void* key1, const void* key2) {
+		if ((key1 == NULL) && (key2 == NULL)) return 0;
+		else if (key1 == NULL) return -1;
+		else if (key2 == NULL) return 1;
+		else {
+			int ikey1 = *((int*)key1);
+			int ikey2 = *((int*)key2);
+
+			if (ikey1 == ikey2) return 0;
+			else if (ikey1 > ikey2) return 1;
+			else return -1;
+		}
+	}
+
+	/*
+	 * Computes size of a set element in bytes.
+	 * Note: Used by the reb-black tree.
+	 */
+	size_t calcelementsize(const void* data) {
+		return sizeof(int);
+	}
+
+	/*
+	 * Needed for red-black tree to perform operations like removing nodes.
+	 */
+	void copyelement( void* dest, const void* from ) {
+		if (from)
+			if (dest)
+				*((int*)dest) = *((int*)from);
+	}
+
+	/*
+	 * Prints a set element.
+	 */
+	void printelement(const void* element) {
+		if (element) {
+			int ivalue = *((int*)element);
+			printf("%d", ivalue);
+		}
+	}
+
+	printf("_________\n");
+	printf("TREESET (ordered set)\n");
+	printf("\nTreeset (with red-black tree) demo ------------\n");
+	printf("Uses a red-black tree to store elements\n\n");
+	struct treeset* set = treeset_create( calcelementsize, copyelement,
+										  compare, printelement, NULL );
+
+//	char spaces[] = "    ";
+	int values[100];
+	int n = 100;
+
+	// insert values in treeset { 99, 98, 97, 96, 95, 94, 93, 92, 91, 90 }
+	for (int i = 0; i < 10; ++i) {
+		values[i] = (n-1) - i;
+		treeset_add( set, &values[i] );
+	}
+
+	printf("Print treeset:\n");
+	treeset_print( set , 0);
+
+	printf( "\nTreeset size: %zu\n", set->size);
+
+	// check if hashtable contains key '2'
+	printf("Does treeset contains element '%d'?\n", values[2]);
+	if (treeset_contains(set, &values[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	// remove element with values[2]
+	printf("Element with value = '%d' will be removed from treeset.\n", values[2]);
+	void* del = treeset_remove(set, &values[2]);
+	if (del != NULL) {
+		printf("Element '%d') was removed from treeset.\n",	*((int*)del));
+	}
+	else
+		printf("Failed to remove element '%d' from treeset!\n", values[2]);
+
+	// check if set contains element values[2]
+	printf("\nDoes treeset contains value '%d'?\n", values[2]);
+	if (treeset_contains(set, &values[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	printf("Treeset size: %zu\n", set->size);
+
+	printf("\nPrint treeset:\n");
+	treeset_print(set, 0);
+
+	struct rbtree* tree = set->tree;
+	printf("Root: %d\n\n", *((int*)tree->root->data));
+
+	printf("\n");
+	int test_values[] = { 4, 91, 99, 100 };
+	int ntest = 4;
+
+	// test floor
+	for (int i = 0; i < ntest; i++) {
+		void* floor = treeset_floor(set, set->tree->root, &test_values[i]);
+		printf("Floor of '%d': ", test_values[i]);
+
+		if (floor)
+			printf("%d\n", *((int*)floor) );
+		else
+			printf("no value found.\n");
+	}
+
+	printf("\n");
+
+	// test ceiling
+	for (int i = 0; i < ntest; i++) {
+		void* floor = treeset_ceiling(set, set->tree->root, &test_values[i]);
+		printf("Ceiling of '%d': ", test_values[i]);
+
+		if (floor)
+			printf("%d\n", *((int*)floor) );
+		else
+			printf("no value found.\n");
+	}
+
+	printf("\n");
+
+	if (set->size > 0) {
+		void* min = treeset_min(set);
+		if (min)
+			printf("Min element: %d\n", *((int*)min));
+
+		void* max = treeset_max(set);
+		if (max)
+			printf("Max element: %d\n", *((int*)max));
+	}
+
+	printf("\nPrint treeset in order:\n");
+	treeset_print(set, 0);
+	printf("Root: %d\n\n", *((int*)set->tree->root->data));
+
+	// remove range of values between 93 and 97 from set
+	int rem_range_lower = 93;
+	int rem_range_upper = 97;
+
+	printf("Remove range from '%d' to '%d'\n", 93, 97);
+	int del_count = treeset_remove_range(set, &rem_range_lower, &rem_range_upper);
+
+	printf("%d elements were removed from set.\n\n", del_count);
+	printf("Treeset size: %zu\n", set->size);
+
+	printf("\nPrint treeset descendent order:\n");
+	treeset_print(set, 1);
+
+	printf("\n");
+
+	treeset_destroy(set);
+	printf("%s", "Treeset (ordered set) destroyed successfully.\n\n");
+}
+
+/*
+ * Hash table linked list demo.
+ * */
+void hashtable_linked_list_demo()
+{
+	int hashfunc(const void* key) {
+		return *((int*)key);
+	}
+
+	int isequalfunc(const void* key1, const void* key2) {
+		int i1 = *((int*)key1);
+		int i2 = *((int*)key2);
+		if (i1 == i2)
+			return 1;
+		else
+			return 0;
+	}
+
+	void printitemfunc(const struct hashtable_keyvalue_pair* kvp) {
+		if (kvp) {
+			if (kvp->key) {
+				int key = *((int*)kvp->key);
+				printf("%d : ", key);
+			}
+			else
+				printf("NULL : ");
+
+			if (kvp->value) {
+				int value = *((int*)kvp->value);
+				printf("%d", value);
+			}
+			else
+				printf("NULL");
+		}
+	}
+
+	printf("_________\n");
+	printf("HASHTABLE (linked lists version)\n");
+	printf("\nHash table with linked lists demo ------------\n");
+	printf("Uses linked lists to resolve hash index collisions\n\n");
+	struct hashtable* htable = hashtable_create_default( hashfunc, isequalfunc,
+														 printitemfunc, NULL );
+
+	int keys[100];
+	int values[100];
+	int n = 100;
+
+	// large set of key/value pairs to provoque array reallocations
+	for (int i = 0; i < 10; ++i) {
+		keys[i] = i;
+		values[i] = (n-1) - i;
+		hashtable_put(htable, &keys[i], &values[i]);
+	}
+
+	printf("Print hashtable:\n");
+	hashtable_print(htable);
+
+	printf( "\nHashtable size: %zu\n", htable->count );
+	printf( "Hashtable capacity: %zu\n\n", htable->capacity );
+
+	// check if hashtable contains key '2'
+	printf("Does hashtable contains key '%d'?\n", keys[2]);
+	if (hashtable_contains(htable, &keys[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	// remove element with key=2
+	printf("Element with key = '%d' will be removed from hashtable.\n", keys[2]);
+	void* del = hashtable_remove(htable, &keys[2]);
+	if (del != NULL) {
+		printf("Element (key = '%d' : value = '%d') removed from hashtable.\n",
+							*((int*)((struct hashtable_lp_keyvalue_pair*)del)->key),
+							*((int*)((struct hashtable_lp_keyvalue_pair*)del)->value));
+		free(del);
+	}
+	else
+		printf("Failed to remove element from hashtable!\n");
+
+	// check if set contains element '2' (keys[2])
+	printf("\nDoes hashtable contains key '%d'?\n", keys[2]);
+	if (hashtable_contains(htable, &keys[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	printf("Hashtable size: %zu\n", htable->count);
+
+	printf("\nPrint hashtable:\n");
+	hashtable_print(htable);
+
+	void* val = hashtable_get(htable, &keys[3]);
+	printf("\nGet value with key '%d': %d.\n", keys[3], *((int*)(((struct hashtable_keyvalue_pair*)(val))->value) ) );
+
+	hashtable_destroy(htable);
+	printf("%s", "Hash table (linked lists) destroyed successfully.\n\n");
+}
+
+/*
+ * Hash table with linear probing demo.
+ * */
+void hashtable_lp_demo()
+{
+	int hashfunc(const void* key) {
+		return *((int*)key);
+	}
+
+	int isequalfunc(const void* key1, const void* key2) {
+		int i1 = *((int*)key1);
+		int i2 = *((int*)key2);
+		if (i1 == i2)
+			return 1;
+		else
+			return 0;
+	}
+
+	void printitemfunc(const struct hashtable_lp_keyvalue_pair* kvp) {
+		if (kvp) {
+			if (kvp->key) {
+				int key = *((int*)kvp->key);
+				printf("%d : ", key);
+			}
+			else
+				printf("NULL : ");
+
+			if (kvp->value) {
+				int value = *((int*)kvp->value);
+				printf("%d", value);
+			}
+			else
+				printf("NULL");
+		}
+	}
+
+	printf("_________\n");
+	printf("HASHTABLE (linear probe version)\n");
+	printf("\nHash table with linear probe demo ------------\n");
+	printf("Uses linear probing technique to resolve hash index collisions\n\n");
+
+	struct hashtable_lp* htable = hashtable_lp_create_default( hashfunc, isequalfunc,
+															   printitemfunc, NULL );
+
+	int keys[100];
+	int values[100];
+	int n = 100;
+
+	// large set of key/value pairs to provoque array reallocations
+	for (int i = 0; i < 10; ++i) {
+		keys[i] = i;
+		values[i] = (n-1) - i;
+		hashtable_lp_put(htable, &keys[i], &values[i]);
+	}
+
+	printf("Print hashtable:\n");
+	hashtable_lp_print(htable);
+
+	printf( "\nHashtable size: %zu\n", htable->count );
+	printf( "Hashtable capacity: %zu\n\n", htable->capacity );
+
+	// check if hashtable contains key '2'
+	printf("Does hashtable contains key '%d'?\n", keys[2]);
+	if (hashtable_lp_contains(htable, &keys[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	// remove element with key=2
+	printf("Element with key = '%d' will be removed from hashtable.\n", keys[2]);
+	void* del = hashtable_lp_remove(htable, &keys[2]);
+	if (del != NULL) {
+		printf("Element (key = '%d' : value = '%d') removed from hashtable.\n",
+							*((int*)((struct hashtable_lp_keyvalue_pair*)del)->key),
+							*((int*)((struct hashtable_lp_keyvalue_pair*)del)->value));
+		free(del);
+	}
+	else
+		printf("Failed to remove element from hashtable!\n");
+
+	// check if set contains element '2' (keys[2])
+	printf("\nDoes hashtable contains key '%d'?\n", keys[2]);
+	if (hashtable_lp_contains(htable, &keys[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	printf("Hashtable size: %zu\n", htable->count);
+
+	printf("\nPrint hashtable:\n");
+	hashtable_lp_print(htable);
+
+	void* val = hashtable_lp_get(htable, &keys[3]);
+	printf("\nGet value with key '%d': %d.\n", keys[3], *((int*)(val)) );
+
+	hashtable_lp_destroy(htable);
+	printf("%s", "Hash table (linear probe) destroyed successfully.\n\n");
+}
+
+/*
+ * Double linked list deque demo.
+ * */
+void hashset_demo() {
+
+//	// constant between 0 and 1 (A=(√5-1)/2 suggested by Knuth).
+//	const double A = (2.2360679775 - 1) / 2;
+
+	/*
+	 * Computes hash value
+	 */
+	int hashfunc(const void* element)
+	{
+		int key = *((int*)(element));
+		return key;
+	}
+
+	/*
+	 * Checks for equality
+	 * */
+	int isequal(const void* a, const void* b) {
+		if (*(int*)a == *(int*)b)
+			return 1;
+		else
+			return 0;
+	}
+
+	/*
+	 * Prints key/value pair data
+	 * */
+	void printelement(void* element)
+	{
+		if (element) {
+			printf("%d", *((int*)element));
+		}
+	}
+
+	printf("___________\n");
+	printf("HASHSET \n\n");
+	printf("HASHSET (unordered set) demo -----------\n\n");
+
+	// Set initialization
+	struct hashset* set = hashset_create(hashfunc, isequal, printelement, NULL);
+
+//	int intdata[] = { 10, 5, 15, 5 };
+//	int n = sizeof(intdata) / sizeof(int);
+//
+//	// add elements to the set
+//	for (int i = 0; i < n; ++i) {
+//		hashset_add(set, &intdata[i]);
+//	}
+
+	int intdata[100];
+
+	// add elements to the set
+	for (int i = 0; i < 100; ++i) {
+		intdata[i] = i;
+		hashset_add(set, &intdata[i]);
+	}
+
+	printf("Print set:\n");
+	hashset_print(set);
+
+	printf("\nSize of set: %zu\n\n", hashset_getsize(set));
+
+	// check if set contains element '2' (intdata[2])
+	printf("Does set contains element '%d'?\n", intdata[2]);
+	if (hashset_contains(set, &intdata[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	// remove element 2
+	printf("Element '%d' will be removed from set.\n", intdata[2]);
+	void* del = hashset_remove(set, &intdata[2]);
+	if (del != NULL) {
+		printf("Element '%d' removed from set.\n", *((int*)del));
+	}
+	else
+		printf("Failed to remove element from set!\n");
+
+	// check if set contains element '2' (intdata[2])
+	printf("\nDoes set contains element '%d'?\n", intdata[2]);
+	if (hashset_contains(set, &intdata[2]))
+		printf("YES\n\n");
+	else
+		printf("NO\n\n");
+
+	printf("Size of set: %zu\n", hashset_getsize(set));
+
+	printf("\nPrint set:\n");
+	hashset_print(set);
+
+	hashset_destroy(set);
+	printf("\nHashset destroyed successfully.\n");
+}
 
 /*
  * Double linked list deque demo.
@@ -605,16 +1067,9 @@ void rbtree_demo() {
 	/*
 	 * Prints node data
 	 * */
-	void printnode(struct rbtreenode* node) {
-		if (node) {
-			void* data = node->data;
-			if (data) {
-				printf("%d", *((int*)data));
-				if (node->c == RB_RED)
-					printf("%s", "-R");
-				else
-					printf("%s", "-B");
-			}
+	void printdata( const void* data ) {
+		if (data) {
+			printf("%d", *((int*)data));
 		}
 	}
 
@@ -637,23 +1092,28 @@ void rbtree_demo() {
 	int n = sizeof(intdata) / sizeof(intdata[0]);
 
 	// create empty tree (no root)
-	struct rbtree* tree = rbtree_create(NULL, calcdatasize, compare, NULL, printnode, copydata);
+	struct rbtree* tree = rbtree_create( NULL, calcdatasize, compare, NULL,
+										 printdata, copydata );
 
-	printf("Red-black tree created successfully (empty)");
+	printf("Red-black tree created successfully (empty).\n");
 	printf("Tree size: %d\n\n", rbtree_getSizeIt(tree));
-	printf("Build red-black tree with elements in the following order:\n");
+//	printf("Build red-black tree with elements in the following order:\n");
 
+//	for (int i = 0; i < n; ++i) {
+//		printf("%d ", intdata[i]);
+//	}
+
+//	printf("\n\n");
+
+	printf("Inserting elements in the red-black tree:\n");
 	for (int i = 0; i < n; ++i) {
-		printf("%d ", intdata[i]);
+		if (rbtree_insert(tree, &intdata[i]))
+			printf("Value '%d' inserted successfully.\n", intdata[i]);
+		else
+			printf("Error: Value '%d' could not be inserted.\n", intdata[i]);
 	}
 
-	printf("\n\n");
-
-	for (int i = 0; i < n; ++i) {
-		tree->root = rbtree_insert(tree, &intdata[i]);
-	}
-
-	printf("Print tree:\n\n");
+	printf("\nPrint tree:\n\n");
 	rbtree_print(tree, "  ");
 	printf("\n");
 	/*
@@ -707,18 +1167,19 @@ void rbtree_demo() {
 	}
 
 	printf("\n\n");
-	int* success = malloc(sizeof(int));
+//	int* success = malloc(sizeof(int));
 
 	// delete nodes with values in delete list
 	for (int i = 0; i < 5; ++i) {
-		*success = 1;
-		tree->root = rbtree_delete(tree, (void*)(&dellist[i]), success);
+//		*success = 1;
+		void* del = rbtree_delete(tree, (void*)(&dellist[i]));//, success);
 
-		if (!(*success))
+//		if (!(*success))
+		if (!del)
 			printf("Failed to delete '%d' from tree.\n\n", dellist[i]);
 		else
 		{
-			printf("'%d' deleted successfully from tree.\n", dellist[i]);
+			printf("'%d' deleted successfully from tree.\n", *((int*)del) );
 			printf("Print tree:\n\n");
 			rbtree_print(tree, "  ");
 //			printf("\n");
@@ -727,7 +1188,7 @@ void rbtree_demo() {
 		printf("-----------------\n");
 	}
 
-	free(success);
+//	free(success);
 	printf("\n");
 
 	// Bug in Morris alg (wrong results in unbalanced trees)
@@ -736,7 +1197,7 @@ void rbtree_demo() {
 	printf("Tree size (iterative alg): %d\n", rbtree_getSizeIt(tree));
 
 	rbtree_destroy(tree);
-	printf("Red-black tree destroyed successfully.\n\n");
+	printf("Red-black tree destroyed successfully.\n");
 }
 
 /*
@@ -1301,7 +1762,7 @@ void linkedliststack_demo() {
 	int intdata[] = {1,2,3,4,5,6,7};
 	int n = sizeof(intdata) / sizeof(intdata[0]);
 
-	struct linkedliststack* stack = linkedliststack_create();
+	struct linkedliststack* stack = linkedliststack_create( NULL );
 
 	printf("Size: %d\n\n", linkedliststack_size(stack));
 
@@ -1519,7 +1980,7 @@ void circdoublelinklist_demo() {
 			return 0;
 	}
 
-	struct circdbllinkedlist* list = circdbllinkedlist_create(isequal);
+	struct circdbllinkedlist* list = circdbllinkedlist_create(isequal, NULL, NULL);
 
 	int data[] = {1,2,3,4};
 	int n = sizeof(data) / sizeof(data[0]);
@@ -1689,7 +2150,7 @@ void singlelinklist_demo() {
 			return 0;
 	}
 
-	struct linkedlist* list = linkedlist_create(isequal);
+	struct linkedlist* list = linkedlist_create(isequal, NULL);
 
 	int data[] = {1,2,3,4};
 	int n = sizeof(data) / sizeof(data[0]);
@@ -1778,7 +2239,7 @@ void circsinglelinklist_demo() {
 			return 0;
 	}
 
-	struct circlinkedlist* list = circlinkedlist_create(isequal);
+	struct circlinkedlist* list = circlinkedlist_create(isequal, NULL, NULL);
 
 	int data[] = {1,2,3,4};
 	int n = sizeof(data) / sizeof(data[0]);
@@ -1821,122 +2282,6 @@ void circsinglelinklist_demo() {
 	printf("\nCircular linked list destroyed successfully.\n");
 }
 
-/*
- * Hash table demo.
- * */
-void hashtable_demo() {
-	int hashfunc(const void* key) {
-		return *((int*)key);
-	}
-
-	int isequalfunc(const void* key1, const void* key2) {
-		int i1 = *((int*)key1);
-		int i2 = *((int*)key2);
-		if (i1 == i2)
-			return 1;
-		else
-			return 0;
-	}
-
-	struct hashtable* htable = hashtable_create(11, 0.75, 2.0, hashfunc, isequalfunc);
-
-	int* key1 = malloc(sizeof(int));
-	int* key2 = malloc(sizeof(int));
-	int* key3 = malloc(sizeof(int));
-	int* key4 = malloc(sizeof(int));
-	int* key5 = malloc(sizeof(int));
-	int* key6 = malloc(sizeof(int));
-
-	*key1 = 1;
-	*key2 = 2;
-	*key3 = 3;
-	*key4 = 4;
-	*key5 = 5;
-	*key6 = 6;
-
-	float* v1 = malloc(sizeof(float));
-	float* v2 = malloc(sizeof(float));
-	float* v3 = malloc(sizeof(float));
-	float* v4 = malloc(sizeof(float));
-	float* v5 = malloc(sizeof(float));
-	float* v6 = malloc(sizeof(float));
-
-	*v1 = 5.3;
-	*v2 = 7.9;
-	*v3 = 8.78;
-	*v4 = 9.1;
-	*v5 = 2.76;
-	*v6 = 1.0;
-
-	printf("_________\n");
-	printf("HASHTABLE\n");
-	printf("\nHash table demo ------------\n\n");
-
-	hashtable_put(htable, key1, v1);
-	printf("Insert key '%d' value '%.2f'\n", *key1, *v1);
-
-	hashtable_put(htable, key2, v2);
-	printf("Insert key '%d' value '%.2f'\n", *key2, *v2);
-
-	hashtable_put(htable, key3, v3);
-	printf("Insert key '%d' value '%.2f'\n", *key3, *v3);
-
-	hashtable_put(htable, key4, v4);
-	printf("Insert key '%d' value '%.2f'\n", *key4, *v4);
-
-	hashtable_put(htable, key5, v5);
-	printf("Insert key '%d' value '%.2f'\n", *key5, *v5);
-
-	hashtable_put(htable, key6, v6);
-	printf("Insert key '%d' value '%.2f'\n", *key6, *v6);
-
-	float* fp = hashtable_get(htable, key3);
-	printf("\nGet key '%d': %f.\n", *key3, *fp);
-
-	// delete key3
-	void* delkey3 = hashtable_delete(htable, key3);
-
-	if (delkey3 == NULL)
-	{
-		printf("Failed to delete key '%d' from hash table.\n", *key3);
-	}
-	else
-	{
-		printf("Delete key '%d' succeeded.\n", *key3);
-	}
-
-	fp = hashtable_get(htable, key3);
-
-	if (fp == NULL) {
-		printf("Get key '%d': %s", *key3, "Element not found.\n");
-	}
-	else {
-		printf("Get key '%d': %s", *key3, "Error: something went wrong.\n");
-	}
-
-
-
-	hashtable_destroy(htable);
-	printf("End: %s", "Hash table destroyed successfully.\n");
-
-	// free memory
-	free(v1);
-	free(v2);
-	free(v3);
-	free(v4);
-	free(v5);
-	free(v6);
-
-	free(key1);
-	free(key2);
-	free(key3);
-	free(key4);
-	free(key5);
-	free(key6);
-
-}
-
-
 int main() {
 	printf("\n");
 	arraylist_demo();
@@ -1949,7 +2294,9 @@ int main() {
 	printf("\n\n");
 	circdoublelinklist_demo();
 	printf("\n\n");
-	hashtable_demo();
+	hashtable_lp_demo();
+	printf("\n\n");
+	hashtable_linked_list_demo();
 	printf("\n\n");
 	binarysearch_demo();
 	printf("\n\n");
@@ -1963,8 +2310,6 @@ int main() {
 	printf("\n\n");
 	avltree_demo();
 	printf("\n\n");
-	rbtree_demo();
-	printf("\n\n");
 	binaryheaparray_demo();
 	printf("\n\n");
 	fibonacciheap_demo();
@@ -1972,6 +2317,17 @@ int main() {
 	arraydeque_demo();
 	printf("\n\n");
 	dbllinkedlistdeque_demo();
+	printf("\n\n");
+	hashset_demo();
+
+	printf("\n\n");
+	rbtree_demo();
+
+	printf("\n\n");
+	treeset_demo();
+
+	printf("\n");
+
 	return EXIT_SUCCESS;
 }
 

@@ -39,7 +39,10 @@
 /*
  * Creates a new empty circular double linked list.
  * */
-struct circdbllinkedlist* circdbllinkedlist_create(int (*isequalfunc)(const void* a, const void* b)) {
+struct circdbllinkedlist* circdbllinkedlist_create( circdbllinkedlist_isequal isequalfunc,
+													circdbllinkedlist_printdata printdatafunc,
+													circdbllinkedlist_freedata freedatafunc )
+{
 	struct circdbllinkedlist* result = NULL;
 	result = malloc(sizeof(*result));
 
@@ -55,6 +58,8 @@ struct circdbllinkedlist* circdbllinkedlist_create(int (*isequalfunc)(const void
 		}
 
 		result->isequal = isequalfunc;
+		result->printdata = printdatafunc;
+		result->freedata = freedatafunc;
 		result->size = 0;
 	}
 
@@ -308,6 +313,10 @@ struct circdbllinkedlistnode* circdbllinkedlist_remove(struct circdbllinkedlist*
 void circdbllinkedlist_destroy(struct circdbllinkedlist* list) {
 	struct circdbllinkedlistnode* node = NULL;
 	while ((node = circdbllinkedlist_remove_first(list)) != NULL) {
+		if (list->freedata)
+			if (node->data)
+				list->freedata(node->data);
+
 		free(node);
 	}
 

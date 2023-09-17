@@ -44,6 +44,7 @@
 
 	typedef void (*dbllinkedlist_freedata)(void* data);
 	typedef void (*dbllinkedlist_printdata)(void* data);
+	typedef int (*dbllinkedlist_isequal)(const void* a, const void* b);
 
 	// Represents a node in a double linked list
 	struct dbllinkedlistnode {
@@ -56,7 +57,7 @@
 	struct dbllinkedlist {
 		dbllinkedlist_printdata printdata;
 		dbllinkedlist_freedata freedata;
-		int (*isequal)(const void* a, const void* b);
+		dbllinkedlist_isequal isequal;
 		struct dbllinkedlistnode** headp;	// pointer to first node
 		struct dbllinkedlistnode** tailp;	// pointer to last node
 		size_t size;	// number of elements in list
@@ -65,7 +66,9 @@
 	/*
 	 * Creates a new double linked list.
 	 * */
-	struct dbllinkedlist* dbllinkedlist_create();
+	struct dbllinkedlist* dbllinkedlist_create( dbllinkedlist_isequal isequalfunc,
+												dbllinkedlist_printdata printdatafunc,
+												dbllinkedlist_freedata freedatafunc );
 
 	/*
 	 * Inserts at beginning of list.
