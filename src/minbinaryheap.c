@@ -186,15 +186,15 @@ void* minbinaryheap_extract(struct heap* h)
  */
 void* minbinaryheap_peek(struct heap* h) { return h->arr[0]; }
 
- /*
-  * Decreases value of key at index 'i' to new_val. It is assumed that
-  * new_val is smaller than h->arr[i].
-  * Decreases the value of the key. The time complexity of this operation is O(log N).
-  * If the decreased key value of a node is greater than the parent of the node, then
-  * we don’t need to do anything. Otherwise, we need to traverse up to fix the violated
-  * heap property.
-  */
- void minbinaryheap_decreasekey(struct heap* h, int i, void* new_val)
+/*
+* Decreases value of key at index 'i' to new_val. It is assumed that
+* new_val is smaller than h->arr[i].
+* Decreases the value of the key. The time complexity of this operation is O(log N).
+* If the decreased key value of a node is greater than the parent of the node, then
+* we don’t need to do anything. Otherwise, we need to traverse up to fix the violated
+* heap property.
+*/
+void minbinaryheap_decreasekey(struct heap* h, int i, void* new_val)
 {
 	 h->arr[i] = new_val;
 	 while (i != 0 && (h->compare(h->arr[minbinaryheap_parent(i)], h->arr[i]) > 0))

@@ -237,12 +237,15 @@
 	// a graph edge
 	struct adjlgedge {
 		int vertexindex;
+		double weight;
 		void* edgedata;
 		struct adjlgedge* next;
 	};
 
+	typedef enum {UNDIRECTED_AGRAPH = 0, DIRECTED_AGRAPH} adjlgraph_edgetype;
+
 	typedef void (*adjlgraph_freedata)(void* data);
-	typedef void (*adjlgraph_printdata)(void* data);
+	typedef void (*adjlgraph_printdata)(const void* data);
 
 	// adjacent list graph struct
 	struct adjlgraph {
@@ -250,7 +253,9 @@
 		adjlgraph_freedata freeedgedata;
 		adjlgraph_printdata printvertex;
 		adjlgraph_printdata printedge;
-		int numvertices;
+		adjlgraph_edgetype etype;
+		size_t _total_edges;
+		size_t numvertices;
 		struct adjlgvertex** vertexlist;
 	};
 
@@ -262,16 +267,21 @@
 	/*
 	 * Create a new graph edge node.
 	 */
-	struct adjlgedge* adjlgraph_createedge(int vindex, void* edgedata);
+	struct adjlgedge* adjlgraph_createedge(int vindex, void* edgedata, double weight);
 
 	/*
 	 * Create a new graph.
 	 */
-	struct adjlgraph* adjlgraph_creategraph(int numvertices,
+	struct adjlgraph* adjlgraph_creategraph(int numvertices, adjlgraph_edgetype etype,
 			adjlgraph_freedata freevertexdatafunc,
 			adjlgraph_freedata freeedgedatafunc,
 			adjlgraph_printdata printvertexfunc,
 			adjlgraph_printdata printedgefunc);
+
+	/*
+	 * Gets the number of edges in the graph.
+	 */
+	size_t adjlgraph_getnumedges(struct adjlgraph* graph);
 
 	/*
 	 * Add vertex to graph.
@@ -281,11 +291,17 @@
 	/*
 	 * Add edge to graph.
 	 */
-	void adjlgraph_addedge(struct adjlgraph* graph, int from, int to, void* edgedata);
+	void adjlgraph_addedge( struct adjlgraph* graph, int from, int to, void* edgedata,
+							double weight );
+
+	/*
+	 * Print the graph
+	 */
+	void adjlgraph_print( struct adjlgraph* graph );
 
 	/*
 	 * Releases graph resources from memory.
 	 */
-	void adjlgraph_destroy(struct adjlgraph* graph);
+	void adjlgraph_destroy( struct adjlgraph* graph );
 
 #endif /* ADJLGRAPH_H_ */

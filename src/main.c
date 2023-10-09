@@ -28,6 +28,139 @@
 #include "hashtable_lp.h"
 #include "hashset.h"
 #include "treeset.h"
+#include "adjlgraph.h"
+#include "indmindaryheap.h"
+#include "bfsalg.h"
+#include "dijkstrasp.h"
+
+/*
+ * Adjacent list graph demo..
+ * */
+void adjlgraph_demo()
+{
+//	/*
+//	 * Prints a set element.
+//	 */
+//	void printdata(const void* data) {
+//		if (data) {
+//			int ivalue = *((int*)data);
+//			printf("%d", ivalue);
+//		}
+//	}
+
+	printf("_________\n");
+	printf("ADJACENCY LIST GRAPH\n");
+	printf("Adjacency list graph demo ------------\n");
+
+	printf("\nUses a list of vertices where each vertice stores a list of edges\n\n");
+	int numvertices = 13;
+	struct adjlgraph* ag = adjlgraph_creategraph( numvertices, UNDIRECTED_AGRAPH,
+												  NULL, NULL,
+												  NULL, NULL );
+
+//	int vertdata[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+
+	// add vertices
+	for (int i = 0; i < numvertices; ++i) {
+		adjlgraph_addvertex(ag, i, NULL);
+	}
+
+	// add edges
+	adjlgraph_addedge(ag, 0, 7, NULL, 1);
+	adjlgraph_addedge(ag, 0, 9, NULL, 1);
+	adjlgraph_addedge(ag, 0, 11, NULL, 1);
+	adjlgraph_addedge(ag, 7, 11, NULL, 1);
+	adjlgraph_addedge(ag, 7, 6, NULL, 1);
+	adjlgraph_addedge(ag, 7, 3, NULL, 1);
+	adjlgraph_addedge(ag, 6, 5, NULL, 1);
+	adjlgraph_addedge(ag, 3, 4, NULL, 1);
+	adjlgraph_addedge(ag, 2, 3, NULL, 1);
+	adjlgraph_addedge(ag, 2, 12, NULL, 1);
+	adjlgraph_addedge(ag, 12, 8, NULL, 1);
+	adjlgraph_addedge(ag, 8, 1, NULL, 1);
+	adjlgraph_addedge(ag, 1, 10, NULL, 1);
+	adjlgraph_addedge(ag, 10, 9, NULL, 1);
+	adjlgraph_addedge(ag, 9, 8, NULL, 1);
+
+
+	printf("Print graph:\n");
+	adjlgraph_print(ag);
+	printf("\n");
+
+	int start = 10, end = 5;
+	int* res_size_p = malloc(sizeof(int));
+	*res_size_p = -1;
+	int* spath = bfsalg_shortest_path(ag, start, end, res_size_p);
+
+	printf("Breadth first search shortest path from vertice %d to %d:\n", start, end);
+	if (spath) {
+		// print shortest path
+		bfsalg_print_path(spath, *res_size_p);
+		free(spath);
+		printf("\n");
+	} else {
+		printf("No path found from '%d' to '%d'.\n", start, end);
+	}
+
+	free(res_size_p);
+	adjlgraph_destroy(ag);
+	printf("%s", "BFS adjacency list graph destroyed successfully.\n\n");
+
+	printf("Dijkstra shortest path demo\n\n");
+	printf("Create new directional graph:\n");
+
+	numvertices = 5;
+	ag = adjlgraph_creategraph( numvertices, DIRECTED_AGRAPH,
+											 NULL, NULL,
+											 NULL, NULL );
+
+	// add vertices
+	for (int i = 0; i < numvertices; ++i) {
+		adjlgraph_addvertex(ag, i, NULL);
+	}
+
+	// add edges
+	adjlgraph_addedge(ag, 0, 1, NULL, 4);	/*		 1				*/
+	adjlgraph_addedge(ag, 0, 2, NULL, 1);	/*	  1/ |  \1			*/
+	adjlgraph_addedge(ag, 1, 3, NULL, 1);	/*	 /	 |	 \   3     	*/
+	adjlgraph_addedge(ag, 2, 1, NULL, 2);	/*	0   2|	  3----4	*/
+	adjlgraph_addedge(ag, 2, 3, NULL, 5);	/*	 \	 |	 /			*/
+	adjlgraph_addedge(ag, 3, 4, NULL, 3);	/*	 4\	 |	/1			*/
+											/*		 2				*/
+	printf("Print graph:\n");
+	adjlgraph_print(ag);
+	printf("\n");
+
+	start = 0; end = 4;
+	printf("Dijkstra shortest path from vertice '%d' to '%d':\n", start, end);
+	printf("(constraints: non-negative edge weights)\n\n");
+
+	// will store distance of start node to all other nodes
+	double* dist = malloc(numvertices * sizeof(double));
+	int* res_size2_p = (int*)malloc(sizeof(int));
+	int* spathdij = dijkstrasp_adjlist_shortest_path(ag, start, end, dist, res_size2_p);
+
+	if (spathdij) {
+		printf("Distance from '%d' to '%d': %.1f\n", start, end, dist[end]);
+		printf("Shortest distance from start node '%d' to all other nodes:\n", start);
+		for (int i = 0; i < numvertices; ++i) {
+			printf("'%d' to '%d' = %.1f\n", start, i, dist[i]);
+		}
+
+		printf("Dijkstra shortest path: ");
+		// print shortest path
+		dijkstrasp_print_path(spathdij, *res_size2_p);
+		printf("\n");
+	} else {
+		printf("No path found from '%d' to '%d'.\n\n", start, end);
+	}
+
+	free(res_size2_p);
+	free(dist);
+	free(spathdij);
+	adjlgraph_destroy(ag);
+	printf("%s", "Dijkstra adjacency list graph destroyed successfully.\n\n");
+}
 
 /*
  * Treeset (ordered set) demo.
@@ -192,7 +325,7 @@ void treeset_demo()
 	printf("\n");
 
 	treeset_destroy(set);
-	printf("%s", "Treeset (ordered set) destroyed successfully.\n\n");
+	printf("%s", "Treeset (ordered set) destroyed successfully.\n");
 }
 
 /*
@@ -913,7 +1046,7 @@ void binaryheaparray_demo() {
 	 *
 	 * */
 
-	printf("Delete value '4' at index 1 from heap:\n");
+	printf("Delete value at index 1 from heap:\n");
 	minbinaryheap_delete(minbinaryheap, 1);
 	printf("Print heap (level ordered):\n");
 	minbinaryheap_print(minbinaryheap);
@@ -1869,7 +2002,6 @@ void arraylist_demo() {
 	printf("\nArraylist destroyed successfully.\n");
 }
 
-
 /*
  * Binary search demo.
  * */
@@ -2027,7 +2159,6 @@ void circdoublelinklist_demo() {
 	circdbllinkedlist_destroy(list);
 	printf("\nCircular double linked list destroyed successfully.\n");
 }
-
 
 /*
  * Double linked list demo.
@@ -2319,12 +2450,13 @@ int main() {
 	dbllinkedlistdeque_demo();
 	printf("\n\n");
 	hashset_demo();
-
 	printf("\n\n");
 	rbtree_demo();
-
 	printf("\n\n");
 	treeset_demo();
+
+	printf("\n\n");
+	adjlgraph_demo();
 
 	printf("\n");
 

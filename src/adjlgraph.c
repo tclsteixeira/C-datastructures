@@ -32,7 +32,7 @@ struct adjlgvertex* adjlgraph_createvertex(void* vertexdata)
 /*
  * Create a new graph edge node.
  */
-struct adjlgedge* adjlgraph_createedge(int vindex, void* edgedata)
+struct adjlgedge* adjlgraph_createedge( int vindex, void* edgedata, double weight )
 {
 	struct adjlgedge* result = (struct adjlgedge*)malloc(sizeof(*result));
 	if (!result) {
@@ -43,6 +43,7 @@ struct adjlgedge* adjlgraph_createedge(int vindex, void* edgedata)
 		result->next = NULL;
 		result->vertexindex = vindex;
 		result->edgedata = edgedata;
+		result->weight = weight;
 	}
 
 	return result;
@@ -51,7 +52,7 @@ struct adjlgedge* adjlgraph_createedge(int vindex, void* edgedata)
 /*
  * Create a new graph.
  */
-struct adjlgraph* adjlgraph_creategraph(int numvertices,
+struct adjlgraph* adjlgraph_creategraph(int numvertices, adjlgraph_edgetype etype,
 		adjlgraph_freedata freevertexdatafunc,
 		adjlgraph_freedata freeedgedatafunc,
 		adjlgraph_printdata printvertexfunc,
@@ -77,15 +78,25 @@ struct adjlgraph* adjlgraph_creategraph(int numvertices,
 			for (int i = 0; i < numvertices; i++)
 				result->vertexlist[i] = NULL;
 
+			result->etype = etype;
 			result->freeedgedata = freeedgedatafunc;
 			result->freevertexdata = freevertexdatafunc;
 			result->printedge = printedgefunc;
 			result->printvertex = printvertexfunc;
 			result->numvertices = numvertices;
+			result->_total_edges = 0;
 		}
 	}
 
 	return result;
+}
+
+/*
+ * Gets the number of edges in the graph.
+ */
+size_t adjlgraph_getnumedges(struct adjlgraph* graph) {
+	if (graph->etype == UNDIRECTED_AGRAPH) return (size_t)(graph->_total_edges / 2);
+	else return graph->_total_edges;
 }
 
 /*
@@ -106,9 +117,10 @@ void adjlgraph_addvertex(struct adjlgraph* graph, int vindex, void* vdata)
 /*
  * Add edge to graph.
  */
-void adjlgraph_addedge(struct adjlgraph* graph, int from, int to, void* edgedata)
+void adjlgraph_addedge_helper( struct adjlgraph* graph, int from, int to,
+							   void* edgedata, double weight )
 {
-	struct adjlgedge* newedge = adjlgraph_createedge(to, edgedata);
+	struct adjlgedge* newedge = adjlgraph_createedge( to, edgedata, weight );
 	struct adjlgedge* edge = graph->vertexlist[from]->edgeslist;
 
 	if (edge)
@@ -124,32 +136,70 @@ void adjlgraph_addedge(struct adjlgraph* graph, int from, int to, void* edgedata
 	}
 }
 
-// Print the graph
+/*
+ * Add edge to graph.
+ */
+void adjlgraph_addedge( struct adjlgraph* graph, int from, int to, void* edgedata,
+						double weight )
+{
+	adjlgraph_addedge_helper( graph, from, to, edgedata, weight );
+
+	if ( graph->etype == UNDIRECTED_AGRAPH )
+		adjlgraph_addedge_helper(graph, to, from, edgedata, weight);
+}
+
+/*
+ * Print the graph
+ */
 void adjlgraph_print(struct adjlgraph* graph)
 {
 	int v;
 	for (v = 0; v < graph->numvertices; v++) {
 		struct adjlgedge* temp = graph->vertexlist[v]->edgeslist;
-		printf("\n Vertex %d: \n", v);
+		printf("Vertex [%d] ", v);
 
 		if (graph->printvertex) {
+			printf("<");
 			graph->printvertex(graph->vertexlist[v]->vertexdata);
+			printf(">");
 		}
 
-		printf("\n");
+		printf("|");
+
+
+//		else {
+//			printf("graph->printvertex is undefined. Can not print graph.");
+//			abort();
+//		}
+
+//		printf("\n");
 
 		// print vertex edges
 		while (temp) {
-			printf("%d ", temp->vertexindex);
+			if (graph->etype == DIRECTED_AGRAPH) {
+				printf("-(%f)", temp->weight);
+			}
+			printf("->");
+			printf("%d", temp->vertexindex);
 
 			if (graph->printedge) {
 				graph->printedge(temp->edgedata);
 			}
+//			else {
+//				printf("graph->printedge function is undefined. Can not print graph.");
+//				abort();
+//			}
 
 			temp = temp->next;
-			if (temp)
-				printf(" -> ");
+
+
+//			if (temp)
+//				printf("->");
+//			else
+//				printf("->NULL");
 		}
+
+		printf("->NULL");
 
 		printf("\n");
 	}
@@ -179,11 +229,13 @@ void adjlgraph_destroy(struct adjlgraph* graph)
 				if (graph->vertexlist[v]->vertexdata != NULL)
 					graph->freevertexdata(graph->vertexlist[v]->vertexdata);
 
+		// release verte struct
+		free(graph->vertexlist[v]);
 //		free(graph->vertexlist[v]);
 	}
 
-	free(graph->vertexlist);
-	free(graph);
+	free(graph->vertexlist);	// free vertex array
+	free(graph);				// free graph struct
 }
 
 
