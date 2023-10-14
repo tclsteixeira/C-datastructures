@@ -5,9 +5,6 @@
  *      Author: Tiago C. Teixeira
  * Description: C implementation of Dijkstra shortest path algorithm.
  *
- *
- *
- *
  */
 
 #include <stdio.h>
@@ -86,20 +83,6 @@ int dijkstrasp_compare(const double a, const double b) {
 	else return 0;
 }
 
-///*
-// * Compare function for priority queue.
-// */
-//int dijkstrasp_compare_pq( const void* a, const void* b ) {
-//
-//	double da = ((struct dijkstra_vert_dist_pair*)a)->dist;
-//	double db = ((struct dijkstra_vert_dist_pair*)b)->dist;
-//
-//	if ( dijkstra_too_small( da - db ) ) return 0;
-//	else if (da > db) return 1;
-//	else if (da < db) return -1;
-//	else return 0;
-//}
-
 /*
  * Compare function for priority queue.
  */
@@ -121,29 +104,10 @@ void dijkstrasp_freedata_pq( void* data ) {
 	free(data);
 }
 
-
-///*
-// * Creates a vertice/distance pair struct.
-// * Note: Result instance must be released later.
-// */
-//struct dijkstra_vert_dist_pair* dijkstra_createnode(int vertice, double dist) {
-//	struct dijkstra_vert_dist_pair* result =
-//			(struct dijkstra_vert_dist_pair*)malloc(sizeof(*result));
-//	if (!result) {
-//		printf("Memory error: failed to allocate memory for 'dijkstra_vert_dist_pair'!");
-//		abort();
-//	} else {
-//		result->vid = vertice;
-//		result->dist = dist;
-//	}
-//
-//	return result;
-//}
-
 /**
 * Reconstructs the shortest path (of nodes) from 'start' to 'end' inclusive.
 *
-* @return An array of node indexes of the shortest path from 'start' to 'end'. If 'start' and
+* Return An array of node indexes of the shortest path from 'start' to 'end'. If 'start' and
 *     'end' are not connected then NULL is returned.
 */
 int* dijkstrasp_adjlist_reconstructPath(int start, int end, int* prev, int n,

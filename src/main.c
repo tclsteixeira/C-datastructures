@@ -32,21 +32,77 @@
 #include "indmindaryheap.h"
 #include "bfsalg.h"
 #include "dijkstrasp.h"
+#include "trie.h"
+
+/*
+ * Trie demo.
+ * */
+void trie_demo()
+{
+	printf("_________\n");
+	printf("TRIE\n");
+	printf("Trie demo ------------\n");
+	printf("\n");
+	int numchars = 26;	// 'a'..'z'
+	struct trie* t = trie_create_trie(numchars, NULL, NULL);
+
+	// By default the trie only accepts lower case alphabet letters 'a' .. 'z'
+	// To change this behavior you must provide your own functions the convert a letter to
+	// an index and vice-versa.
+	// Otherwise you can get negative array indexes.
+	char* strings[6] = {"kit", "cat", "jit", "cattle", "kin", "happy"};
+	int n = 6;
+	for (int i = 0; i < n; ++i) {
+		printf("Insert '%s'\n", strings[i]);
+		trie_insert(t, strings[i]);
+	}
+
+	printf("\nPrint trie:\n");
+	trie_print(t);
+
+	printf("\nSearch words:\n");
+	printf("Search for '%s': %s\n", strings[3], trie_search(t, strings[3]) ? "FOUND" : "NOT FOUND"); // KIN
+	printf("Search for '%s': %s\n", strings[1], trie_search(t, strings[1]) ? "FOUND" : "NOT FOUND"); // CAT
+	printf("Search for '%s': %s\n", "kitten", trie_search(t, "kitten") ? "FOUND" : "NOT FOUND");	 // KITTEN
+	printf("\n");
+
+	if (trie_delete(t, "kin"))
+		printf("Deleted word '%s'.\n", "kin");
+	else
+		printf("Failed to delete word '%s'.\n", "kin");
+
+	if (trie_delete(t, "cat"))
+		printf("Deleted word '%s'.\n", "cat");
+	else
+		printf("Failed to delete word '%s'.\n", "cat");
+
+	printf("\nPrint trie:\n");
+	trie_print(t);
+
+	// delete all remaining words
+	char* dwords[4] = {"cattle", "kit", "happy", "jit"};
+	int n2 = 4;
+	printf("\nRemoving all remaining words:\n");
+	for (int i = 0; i < n2; ++i) {
+		if (trie_delete(t, dwords[i]))
+			printf("Deleted word '%s'.\n", dwords[i]);
+		else
+			printf("Failed to delete word '%s'.\n", dwords[i]);
+	}
+
+	printf("\nPrint trie:\n");
+	trie_print(t);
+
+	printf("\n\n");
+	trie_destroy(t);
+	printf("%s", "Trie destroyed successfully.\n\n");
+}
 
 /*
  * Adjacent list graph demo..
  * */
 void adjlgraph_demo()
 {
-//	/*
-//	 * Prints a set element.
-//	 */
-//	void printdata(const void* data) {
-//		if (data) {
-//			int ivalue = *((int*)data);
-//			printf("%d", ivalue);
-//		}
-//	}
 
 	printf("_________\n");
 	printf("ADJACENCY LIST GRAPH\n");
@@ -57,8 +113,6 @@ void adjlgraph_demo()
 	struct adjlgraph* ag = adjlgraph_creategraph( numvertices, UNDIRECTED_AGRAPH,
 												  NULL, NULL,
 												  NULL, NULL );
-
-//	int vertdata[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
 	// add vertices
 	for (int i = 0; i < numvertices; ++i) {
@@ -159,7 +213,7 @@ void adjlgraph_demo()
 	free(dist);
 	free(spathdij);
 	adjlgraph_destroy(ag);
-	printf("%s", "Dijkstra adjacency list graph destroyed successfully.\n\n");
+	printf("%s", "Dijkstra adjacency list graph destroyed successfully.\n");
 }
 
 /*
@@ -2454,9 +2508,10 @@ int main() {
 	rbtree_demo();
 	printf("\n\n");
 	treeset_demo();
-
 	printf("\n\n");
 	adjlgraph_demo();
+	printf("\n\n");
+	trie_demo();
 
 	printf("\n");
 

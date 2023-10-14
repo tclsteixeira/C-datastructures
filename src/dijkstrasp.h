@@ -26,6 +26,11 @@
  * algorithms such as the Bellman-Ford algorithm or the Floyd-Warshall algorithm may
  * be used.
  *
+ * Sources: Adapted from William Fiset Java implementation
+ * 			https://github.com/williamfiset/Algorithms/blob/master/src/main/java/com/williamfiset/algorithms/graphtheory/DijkstrasShortestPathAdjacencyListWithDHeap.java
+ *
+ * https://www.youtube.com/watch?v=pSqmAO-m7Lk
+ *
  */
 
 #ifndef DIJKSTRASP_H_
