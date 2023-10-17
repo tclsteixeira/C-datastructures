@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
 #include "arraylist.h"
 #include "binarysearch.h"
 #include "circdbllinkedlist.h"
@@ -33,6 +34,56 @@
 #include "bfsalg.h"
 #include "dijkstrasp.h"
 #include "trie.h"
+#include "trieext.h"
+
+/*
+ * Trie extensions demo.
+ * */
+void trie_extensions_demo()
+{
+	printf("_________\n");
+	printf("TRIE EXTENSIONS\n");
+	printf("Trie EXTENSIONS demo ------------\n");
+	printf("\n");
+	int numchars = 26;	// 'a'..'z'
+	struct trie* t = trie_create_trie(numchars, NULL, NULL);
+
+	// By default the trie only accepts lower case alphabet letters 'a' .. 'z'
+	// To change this behavior you must provide your own functions the convert a letter to
+	// an index and vice-versa.
+	// Otherwise you can get negative array indexes.
+	char* strings[9] = {"hello", "dog", "hell", "cat", "a", "hel", "help", "helps", "helping"};
+	int n = 9;
+	for (int i = 0; i < n; ++i) {
+		printf("Insert '%s'\n", strings[i]);
+		trie_insert(t, strings[i]);
+	}
+
+	printf("\nPrint trie:\n");
+	trie_print(t);
+
+	char prefix[] = "hel";
+	struct arraylist* slist = NULL;
+	// get auto sugestions for 'hel'
+	slist = trieext_getwords(t, prefix);
+
+	printf("\nAuto sugestions for prefix '%s':\n", prefix);
+	if (slist == NULL)
+		printf("NO SUGESTIONS FOUND!\n");
+	else {
+		for (int i = 0; i < slist->length; ++i) {
+			char* sug = (char*)arraylist_get_item_at(slist, i);
+			printf("%c%s%c\n", '"', sug, '"');
+			free(sug);
+		}
+
+		arraylist_destroy(slist);	// free list
+	}
+//free(prefixp);
+	printf("\n\n");
+	trie_destroy(t);
+	printf("%s", "Trie destroyed successfully.");
+}
 
 /*
  * Trie demo.
@@ -95,7 +146,7 @@ void trie_demo()
 
 	printf("\n\n");
 	trie_destroy(t);
-	printf("%s", "Trie destroyed successfully.\n\n");
+	printf("%s", "Trie destroyed successfully.\n");
 }
 
 /*
@@ -2512,7 +2563,8 @@ int main() {
 	adjlgraph_demo();
 	printf("\n\n");
 	trie_demo();
-
+	printf("\n\n");
+	trie_extensions_demo();
 	printf("\n");
 
 	return EXIT_SUCCESS;

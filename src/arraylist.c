@@ -12,9 +12,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define DEFAULT_CAPACITY  20
-#define DEFAULT_CHUNK_FRAC  1.0/3.0
-
 /*
  * Creates and initializes an arraylist structure.
  * */
@@ -42,7 +39,7 @@ struct arraylist* arraylist_create_capacity(uint capacity) {
  * Creates and initializes an arraylist structure.
  * */
 struct arraylist* arraylist_create() {
-	struct arraylist* result = arraylist_create_capacity(DEFAULT_CAPACITY);
+	struct arraylist* result = arraylist_create_capacity(ARRAYLIST_DEFAULT_CAPACITY);
 	return result;
 }
 
@@ -63,8 +60,8 @@ void* arraylist_get_item_at(const struct arraylist* a, unsigned int index) {
  * */
 int arraylist_allocate_mem_if_needed_for_insertion(struct arraylist* a) {
 	if (a->capacity == a->length) {
-		float frac = DEFAULT_CHUNK_FRAC;
-		unsigned int numel = trunc((1.0 + frac) * a->capacity);
+		float lfact = ARRAYLIST_DEFAULT_LOADFACTOR;
+		unsigned int numel = trunc(lfact * a->capacity);
 		unsigned int numbytes = numel * sizeof(void*);
 		void* newBuffer = realloc(a->buffer, numbytes);
 		if (newBuffer == NULL)

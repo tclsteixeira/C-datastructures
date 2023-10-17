@@ -11,6 +11,9 @@
 #ifndef ARRAYLIST_H_
 	#define ARRAYLIST_H_
 
+	#define ARRAYLIST_DEFAULT_CAPACITY  20
+	#define ARRAYLIST_DEFAULT_LOADFACTOR 2.0
+
 	/*
 	 * Declares arraylist structure
 	 * Sintax prefered by linux gays way to declare struct types in C
