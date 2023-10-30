@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "adjlgraph.h"
 
 
@@ -238,5 +239,48 @@ void adjlgraph_destroy(struct adjlgraph* graph)
 	free(graph);				// free graph struct
 }
 
+/*
+ * Create a new graph that is a copy from a given existent graph. If 'reverse' arg is true, the direction
+ * of the edges of the result copy will be resersed.
+ */
+struct adjlgraph* adjlgraph_create_copy_from(struct adjlgraph* s, bool reverse)
+{
+	int nv = s->numvertices;
+	struct adjlgraph* result = adjlgraph_creategraph(
+									nv, s->etype, s->freevertexdata,
+									s->freeedgedata, s->printvertex, s->printedge );
+	if (result == NULL) {
+		printf("Memory error: failed to allocate adjacency list graph struct!");
+		abort();
+	}
+	else {
+		struct adjlgvertex* vertex;
+
+		// create vertices
+		for(int v = 0; v < nv; ++v) {
+			vertex = s->vertexlist[v];
+			adjlgraph_addvertex(result, v, vertex->vertexdata);
+		}
+
+		for(int v = 0; v < nv; ++v) {
+			struct adjlgedge* edge = s->vertexlist[v]->edgeslist;
+
+			if (reverse) {
+				while (edge) {		// copy edges with direction reversed
+					adjlgraph_addedge(result, edge->vertexindex, v, edge->edgedata, edge->weight);
+					edge = edge->next;
+				}
+			}
+			else {
+				while (edge) {		// copy edges
+					adjlgraph_addedge(result, v, edge->vertexindex, edge->edgedata, edge->weight);
+					edge = edge->next;
+				}
+			}
+		}
+	}
+
+	return result;
+}
 
 

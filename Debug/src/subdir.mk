@@ -16,6 +16,7 @@ C_SRCS += \
 ../src/circlinkedlist.c \
 ../src/dbllinkedlist.c \
 ../src/dbllinkedlistdeque.c \
+../src/dfsalg.c \
 ../src/dijkstrasp.c \
 ../src/fibonacciheap.c \
 ../src/hashset.c \
@@ -47,6 +48,7 @@ C_DEPS += \
 ./src/circlinkedlist.d \
 ./src/dbllinkedlist.d \
 ./src/dbllinkedlistdeque.d \
+./src/dfsalg.d \
 ./src/dijkstrasp.d \
 ./src/fibonacciheap.d \
 ./src/hashset.d \
@@ -78,6 +80,7 @@ OBJS += \
 ./src/circlinkedlist.o \
 ./src/dbllinkedlist.o \
 ./src/dbllinkedlistdeque.o \
+./src/dfsalg.o \
 ./src/dijkstrasp.o \
 ./src/fibonacciheap.o \
 ./src/hashset.o \
@@ -109,7 +112,7 @@ src/%.o: ../src/%.c src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/adjlgraph.d ./src/adjlgraph.o ./src/arraydeque.d ./src/arraydeque.o ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/bfsalg.d ./src/bfsalg.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/dbllinkedlistdeque.d ./src/dbllinkedlistdeque.o ./src/dijkstrasp.d ./src/dijkstrasp.o ./src/fibonacciheap.d ./src/fibonacciheap.o ./src/hashset.d ./src/hashset.o ./src/hashtable.d ./src/hashtable.o ./src/hashtable_lp.d ./src/hashtable_lp.o ./src/indminbinaryheap.d ./src/indminbinaryheap.o ./src/indmindaryheap.d ./src/indmindaryheap.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o ./src/maxbinaryheap.d ./src/maxbinaryheap.o ./src/minbinaryheap.d ./src/minbinaryheap.o ./src/redblacktree.d ./src/redblacktree.o ./src/treeset.d ./src/treeset.o ./src/trie.d ./src/trie.o ./src/trieext.d ./src/trieext.o
+	-$(RM) ./src/adjlgraph.d ./src/adjlgraph.o ./src/arraydeque.d ./src/arraydeque.o ./src/arraylist.d ./src/arraylist.o ./src/avltree.d ./src/avltree.o ./src/bfsalg.d ./src/bfsalg.o ./src/binarysearch.d ./src/binarysearch.o ./src/binarysearchtree.d ./src/binarysearchtree.o ./src/binarytree.d ./src/binarytree.o ./src/circdbllinkedlist.d ./src/circdbllinkedlist.o ./src/circlinkedlist.d ./src/circlinkedlist.o ./src/dbllinkedlist.d ./src/dbllinkedlist.o ./src/dbllinkedlistdeque.d ./src/dbllinkedlistdeque.o ./src/dfsalg.d ./src/dfsalg.o ./src/dijkstrasp.d ./src/dijkstrasp.o ./src/fibonacciheap.d ./src/fibonacciheap.o ./src/hashset.d ./src/hashset.o ./src/hashtable.d ./src/hashtable.o ./src/hashtable_lp.d ./src/hashtable_lp.o ./src/indminbinaryheap.d ./src/indminbinaryheap.o ./src/indmindaryheap.d ./src/indmindaryheap.o ./src/linkedlist.d ./src/linkedlist.o ./src/linkedlistqueue.d ./src/linkedlistqueue.o ./src/linkedliststack.d ./src/linkedliststack.o ./src/main.d ./src/main.o ./src/maxbinaryheap.d ./src/maxbinaryheap.o ./src/minbinaryheap.d ./src/minbinaryheap.o ./src/redblacktree.d ./src/redblacktree.o ./src/treeset.d ./src/treeset.o ./src/trie.d ./src/trie.o ./src/trieext.d ./src/trieext.o
 
 .PHONY: clean-src
 

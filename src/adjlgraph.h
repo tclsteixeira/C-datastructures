@@ -227,6 +227,7 @@
 
 #ifndef ADJLGRAPH_H_
 	#define ADJLGRAPH_H_
+	#include <stdbool.h>
 
 	// represents a vertex
 	struct adjlgvertex {
@@ -277,6 +278,12 @@
 			adjlgraph_freedata freeedgedatafunc,
 			adjlgraph_printdata printvertexfunc,
 			adjlgraph_printdata printedgefunc);
+
+	/*
+	 * Create a new graph that is a copy from a given existent graph. If 'reverse' arg is true, the direction
+	 * of the edges of the result copy will be resersed.
+	 */
+	struct adjlgraph* adjlgraph_create_copy_from(struct adjlgraph* s, bool reverse);
 
 	/*
 	 * Gets the number of edges in the graph.

@@ -35,6 +35,130 @@
 #include "dijkstrasp.h"
 #include "trie.h"
 #include "trieext.h"
+#include "dfsalg.h"
+
+/*
+ * Depth-first search algorithm for adjacency list graph demo.
+ * */
+void dfsalg_demo()
+{
+	printf("_________\n");
+	printf("DEPH-FIRST SEARCH ALGORITHM FOR ADJACENCY LIST GRAPH\n");
+	printf("DEPH-FIRST SEARCH demo ------------\n");
+	printf("\n");
+
+	int n = 5;
+	struct adjlgraph* g = adjlgraph_creategraph( n, DIRECTED_AGRAPH,
+												 NULL, NULL,
+												 NULL, NULL );
+	// add 5 vertices
+	for(int i = 0; i < n; ++i) {
+		adjlgraph_addvertex(g, i, NULL);
+	}
+
+	adjlgraph_addedge( g, 0, 1, NULL, 4);
+	adjlgraph_addedge( g, 0, 2, NULL, 5);
+	adjlgraph_addedge( g, 1, 2, NULL, -2);
+	adjlgraph_addedge( g, 1, 3, NULL, 6);
+	adjlgraph_addedge( g, 2, 3, NULL, 1);
+	adjlgraph_addedge( g, 2, 2, NULL, 10);	// Self loop
+
+	/*
+	// Create a fully connected graph
+	//           (0)
+	//           / \
+	//        5 /   \ 4
+	//         /     \
+	// 10     <   -2  >
+	//   +->(2)<------(1)      (4)
+	//   +--- \       /
+	//         \     /
+	//        1 \   / 6
+	//           > <
+	//           (3)
+	 */
+
+	printf("\nPrint graph:\n");
+	adjlgraph_print(g);
+	printf("\n");
+
+	ulong* countp = (ulong*)malloc(sizeof(ulong));
+	dfsalg_countvertices(g, 0, countp);	// deph-first search rec algorithm
+	printf("Recursive DFS node count starting at node 0: %lu\n", *countp);
+	if (*countp != 4) printf("Error with DFS\n\n");
+
+	dfsalg_countvertices_iteractive(g, 0, countp);	// deph-first search iteractive algorithm
+	printf("Iteractive DFS node count starting at node 0: %lu\n", *countp);
+	if (*countp != 4) printf("Error with DFS\n\n");
+
+	dfsalg_countvertices(g, 4, countp);	// node 4 is disconnected
+	printf("Recursive DFS node count starting at node 4: %lu\n", *countp);
+	if (*countp != 1) printf("Error with DFS\n");
+
+	dfsalg_countvertices_iteractive(g, 4, countp);	// node 4 is disconnected
+	printf("Iteractive DFS node count starting at node 4: %lu\n", *countp);
+	if (*countp != 1) printf("Error with DFS\n");
+
+	free(countp);
+	printf("\n");
+	adjlgraph_destroy(g);
+	printf("%s", "Adjaceny list graph destroyed successfully.\n");
+
+
+	// Test function to find ancestors of each node in the graph
+	printf("\nTesting find ancestors function\n");
+	printf("\nCreating new graph\n");
+	n = 5;
+	g = adjlgraph_creategraph( n, DIRECTED_AGRAPH,
+							   NULL, NULL,
+							   NULL, NULL );
+	// add 5 vertices
+	for(int i = 0; i < n; ++i) {
+		adjlgraph_addvertex(g, i, NULL);
+	}
+
+	adjlgraph_addedge( g, 0, 4, NULL, 0);
+	adjlgraph_addedge( g, 4, 1, NULL, 0);
+	adjlgraph_addedge( g, 4, 3, NULL, 0);
+	adjlgraph_addedge( g, 1, 2, NULL, 0);
+
+	printf("Print graph;\n");
+	adjlgraph_print(g);
+
+	/*
+	// Create a fully connected graph
+	//           (0)
+	//             \
+	//              \
+	//               \
+	//                >
+	//      (2)       (4)----->(3)
+	//        <       /
+	//         \     /
+	//          \   /
+	//           \ <
+	//           (1)
+	 */
+
+	printf("\n");
+	printf("Finding ancestors of each vertice\n");
+	struct dfsalgancestornode** ancestors = dfsalg_find_ancestors(g);
+
+	// print results
+	if (ancestors == NULL) {
+		printf("Failed to find ancestors!\n");
+	}
+	else {
+		printf("Print all vertices ancestors:\n");
+		dfsalg_print_ancestors(ancestors, n);
+	}
+
+	printf("\n");
+	dfsalg_destroy_ancestors(ancestors, n);
+	printf("%s", "Ancestors list destroyed successfully.\n");
+	adjlgraph_destroy(g);
+	printf("%s", "Adjaceny list graph destroyed successfully.\n");
+}
 
 /*
  * Trie extensions demo.
@@ -80,9 +204,9 @@ void trie_extensions_demo()
 		arraylist_destroy(slist);	// free list
 	}
 //free(prefixp);
-	printf("\n\n");
+	printf("\n");
 	trie_destroy(t);
-	printf("%s", "Trie destroyed successfully.");
+	printf("%s", "Trie destroyed successfully.\n");
 }
 
 /*
@@ -2565,8 +2689,9 @@ int main() {
 	trie_demo();
 	printf("\n\n");
 	trie_extensions_demo();
+	printf("\n\n");
+	dfsalg_demo();
 	printf("\n");
-
 	return EXIT_SUCCESS;
 }
 
